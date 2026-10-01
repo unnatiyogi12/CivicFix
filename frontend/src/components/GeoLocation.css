@@ -1,0 +1,227 @@
+/* =========================================================
+   CIVICFIX - GEO LOCATION
+   ========================================================= */
+
+.location-section {
+  margin-top: 28px;
+  padding: 26px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+}
+
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.location-section h3 {
+  margin: 0 0 22px;
+  text-align: center;
+  font-size: 20px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+
+/* =========================================================
+   CURRENT LOCATION BUTTON
+   ========================================================= */
+
+.location-section > button {
+  display: block;
+  margin: 0 auto;
+  padding: 13px 23px;
+  border: none;
+  border-radius: 11px;
+  background: #2563eb;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 650;
+  cursor: pointer;
+  box-shadow:
+    0 5px 12px rgba(37, 99, 235, 0.2);
+  transition: all 0.2s ease;
+}
+
+.location-section > button:hover {
+  background: #1d4ed8;
+  transform: translateY(-1px);
+  box-shadow:
+    0 7px 16px rgba(37, 99, 235, 0.25);
+}
+
+.location-section > button:active {
+  transform: translateY(0);
+}
+
+.location-section > button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  transform: none;
+}
+
+
+/* =========================================================
+   TEST LOCATION CONTAINER
+   ========================================================= */
+
+.location-section > div {
+  box-sizing: border-box;
+}
+
+
+/* =========================================================
+   TEST MODE LABEL
+   ========================================================= */
+
+.location-section label {
+  color: #334155;
+  font-size: 14px;
+}
+
+
+/* =========================================================
+   TEST MODE CHECKBOX
+   ========================================================= */
+
+.location-section input[type="checkbox"] {
+  width: 17px;
+  height: 17px;
+  accent-color: #2563eb;
+  cursor: pointer;
+}
+
+
+/* =========================================================
+   TEST LOCATION SELECT
+   ========================================================= */
+
+.location-section select {
+  width: 100%;
+  padding: 11px 12px;
+  margin-top: 4px;
+  border: 1px solid #cbd5e1;
+  border-radius: 9px;
+  background: #ffffff;
+  color: #0f172a;
+  font-family: inherit;
+  font-size: 14px;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s ease,
+              box-shadow 0.2s ease;
+}
+
+.location-section select:focus {
+  border-color: #2563eb;
+  box-shadow:
+    0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+
+/* =========================================================
+   INPUTS
+   ========================================================= */
+
+.location-section input[type="number"] {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 11px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 9px;
+  background: #ffffff;
+  color: #0f172a;
+  font-family: inherit;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s ease,
+              box-shadow 0.2s ease;
+}
+
+.location-section input[type="number"]:focus {
+  border-color: #2563eb;
+  box-shadow:
+    0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.location-section input[type="number"]::placeholder {
+  color: #94a3b8;
+}
+
+
+/* =========================================================
+   TEST LOCATION BUTTON
+   ========================================================= */
+
+.location-section button {
+  font-family: inherit;
+}
+
+
+/* Button inside test mode */
+
+.location-section select + button,
+.location-section button {
+  transition: all 0.2s ease;
+}
+
+
+/* =========================================================
+   CUSTOM COORDINATES AREA
+   ========================================================= */
+
+.location-section p {
+  color: #475569;
+}
+
+
+/* =========================================================
+   SELECTED COORDINATES
+   ========================================================= */
+
+.location-section strong {
+  display: block;
+  margin-bottom: 5px;
+  color: #0f172a;
+  font-size: 14px;
+}
+
+
+/* =========================================================
+   ERROR
+   ========================================================= */
+
+.location-error {
+  margin: 15px 0 0;
+  padding: 11px 14px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 9px;
+  color: #dc2626;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 600px) {
+
+  .location-section {
+    padding: 20px 16px;
+  }
+
+  .location-section > button {
+    width: 100%;
+  }
+
+  .location-section select,
+  .location-section input[type="number"] {
+    font-size: 14px;
+  }
+
+}

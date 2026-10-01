@@ -1,0 +1,107 @@
+.image-section {
+  margin-top: 28px;
+  padding: 24px;
+
+  background: #f8fafc;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+}
+
+.image-section h3 {
+  margin: 0 0 18px;
+
+  text-align: center;
+
+  font-size: 19px;
+  font-weight: 700;
+
+  color: #0f172a;
+}
+
+
+/* File Upload */
+
+.image-section input[type="file"] {
+  width: 100%;
+
+  padding: 13px;
+
+  background: #ffffff;
+
+  border: 1.5px dashed #94a3b8;
+  border-radius: 11px;
+
+  color: #475569;
+
+  font-size: 14px;
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+}
+
+.image-section input[type="file"]:hover {
+  border-color: #2563eb;
+  background: #f8fbff;
+}
+
+
+/* Preview */
+
+.preview-section {
+  margin-top: 20px;
+  padding-top: 20px;
+
+  border-top: 1px solid #e2e8f0;
+}
+
+.preview-section h3 {
+  margin: 0 0 14px;
+
+  text-align: left;
+
+  font-size: 16px;
+  font-weight: 650;
+
+  color: #334155;
+}
+
+.preview-image {
+  display: block;
+
+  width: 100%;
+  max-width: 460px;
+
+  height: 260px;
+
+  margin: 0 auto;
+
+  object-fit: cover;
+
+  border-radius: 14px;
+
+  border: 1px solid #e2e8f0;
+}
+
+.preview-section p {
+  margin: 10px 0 0;
+
+  text-align: center;
+
+  font-size: 13px;
+
+  color: #64748b;
+}
+
+
+@media (max-width: 600px) {
+
+  .image-section {
+    padding: 20px 16px;
+  }
+
+  .preview-image {
+    height: 220px;
+  }
+}

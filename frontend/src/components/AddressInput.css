@@ -1,0 +1,45 @@
+.address-input-section {
+  margin-top: 22px;
+}
+
+.address-input-section label {
+  display: block;
+
+  margin-bottom: 8px;
+
+  font-size: 14px;
+  font-weight: 650;
+
+  color: #334155;
+}
+
+.address-input-section input {
+  width: 100%;
+
+  padding: 14px 16px;
+
+  background: #ffffff;
+
+  border: 1px solid #cbd5e1;
+  border-radius: 11px;
+
+  color: #0f172a;
+
+  font-family: inherit;
+  font-size: 15px;
+
+  outline: none;
+
+  transition: 0.2s ease;
+}
+
+.address-input-section input:focus {
+  border-color: #2563eb;
+
+  box-shadow:
+    0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.address-input-section input::placeholder {
+  color: #94a3b8;
+}

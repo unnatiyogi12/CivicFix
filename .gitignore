@@ -1,0 +1,12 @@
+node_modules/
+.env
+.env.*
+dist/
+build/
+.vite/
+coverage/
+
+*.log
+npm-debug.log*
+# Large civic ward dataset
+data/wards/

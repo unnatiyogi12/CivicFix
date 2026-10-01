@@ -1,0 +1,1992 @@
+/* =========================================================
+   CIVICFIX AI — ADMIN COMPLAINTS
+   ========================================================= */
+
+
+/* =========================================================
+   PAGE
+   ========================================================= */
+
+.admin-complaints-page {
+
+  width: 100%;
+
+  max-width: 1400px;
+
+  margin: 0 auto;
+
+  padding: 32px;
+
+  box-sizing: border-box;
+
+  color: #172033;
+
+  background: #f6f8fc;
+
+  min-height: 100vh;
+
+}
+
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.admin-complaints-header {
+
+  display: grid;
+
+  grid-template-columns:
+    1fr
+    2fr
+    1fr;
+
+  align-items: center;
+
+  gap: 24px;
+
+  margin-bottom: 32px;
+
+}
+
+
+.admin-complaints-heading {
+
+  text-align: center;
+
+}
+
+
+.admin-eyebrow {
+
+  display: inline-block;
+
+  font-size: 12px;
+
+  font-weight: 800;
+
+  letter-spacing: 2px;
+
+  color: #4f46e5;
+
+  margin-bottom: 8px;
+
+}
+
+
+.admin-complaints-heading h2 {
+
+  margin: 0;
+
+  font-size: 32px;
+
+  font-weight: 800;
+
+  color: #111827;
+
+}
+
+
+.admin-complaints-heading p {
+
+  margin: 8px 0 0;
+
+  color: #6b7280;
+
+  font-size: 14px;
+
+}
+
+
+/* =========================================================
+   BACK BUTTON
+   ========================================================= */
+
+.admin-back-btn {
+
+  border: none;
+
+  background: transparent;
+
+  color: #4f46e5;
+
+  font-size: 14px;
+
+  font-weight: 700;
+
+  cursor: pointer;
+
+  padding: 10px 0;
+
+  transition: 0.2s ease;
+
+}
+
+
+.admin-back-btn:hover {
+
+  color: #3730a3;
+
+  transform: translateX(-2px);
+
+}
+
+
+/* =========================================================
+   TOTAL COMPLAINTS
+   ========================================================= */
+
+.admin-total-complaints {
+
+  background: #ffffff;
+
+  border: 1px solid #e5e7eb;
+
+  border-radius: 18px;
+
+  padding: 18px 20px;
+
+  text-align: center;
+
+  box-shadow:
+    0 8px 24px rgba(15, 23, 42, 0.05);
+
+}
+
+
+.admin-total-complaints span {
+
+  display: block;
+
+  font-size: 12px;
+
+  color: #6b7280;
+
+  font-weight: 700;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.7px;
+
+}
+
+
+.admin-total-complaints strong {
+
+  display: block;
+
+  margin-top: 6px;
+
+  font-size: 30px;
+
+  color: #111827;
+
+}
+
+
+/* =========================================================
+   COMPLAINT LIST
+   ========================================================= */
+
+.admin-complaints-list {
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 22px;
+
+}
+
+
+/* =========================================================
+   COMPLAINT CARD
+   ========================================================= */
+
+.admin-complaint-card {
+
+  background: #ffffff;
+
+  border: 1px solid #e5e7eb;
+
+  border-radius: 20px;
+
+  padding: 24px;
+
+  box-shadow:
+    0 8px 30px rgba(15, 23, 42, 0.06);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+
+}
+
+
+.admin-complaint-card:hover {
+
+  transform: translateY(-3px);
+
+  border-color: #c7d2fe;
+
+  box-shadow:
+    0 14px 34px rgba(15, 23, 42, 0.09);
+
+}
+
+
+/* =========================================================
+   CARD TOP
+   ========================================================= */
+
+.admin-card-top {
+
+  display: flex;
+
+  align-items: flex-start;
+
+  justify-content: space-between;
+
+  gap: 18px;
+
+}
+
+
+.admin-card-top h3 {
+
+  margin: 0;
+
+  font-size: 20px;
+
+  line-height: 1.35;
+
+  color: #111827;
+
+}
+
+
+.admin-category {
+
+  margin: 8px 0 0;
+
+  color: #4f46e5;
+
+  font-size: 13px;
+
+  font-weight: 700;
+
+}
+
+
+/* =========================================================
+   STATUS BADGE
+   ========================================================= */
+
+.admin-status {
+
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  white-space: nowrap;
+
+  border-radius: 999px;
+
+  padding: 7px 12px;
+
+  font-size: 12px;
+
+  font-weight: 800;
+
+}
+
+
+/* Reported */
+
+.status-reported {
+
+  background: #eff6ff;
+
+  color: #2563eb;
+
+}
+
+
+/* Verified */
+
+.status-verified {
+
+  background: #ecfdf5;
+
+  color: #059669;
+
+}
+
+
+/* Assigned */
+
+.status-assigned {
+
+  background: #f5f3ff;
+
+  color: #7c3aed;
+
+}
+
+
+/* In Progress */
+
+.status-in-progress {
+
+  background: #fff7ed;
+
+  color: #ea580c;
+
+}
+
+
+/* Resolved */
+
+.status-resolved {
+
+  background: #ecfdf5;
+
+  color: #047857;
+
+}
+
+
+/* Rejected */
+
+.status-rejected {
+
+  background: #fef2f2;
+
+  color: #dc2626;
+
+}
+
+
+/* =========================================================
+   DESCRIPTION
+   ========================================================= */
+
+.admin-description {
+
+  margin: 18px 0;
+
+  color: #4b5563;
+
+  font-size: 14px;
+
+  line-height: 1.7;
+
+}
+
+
+/* =========================================================
+   INFO GRID
+   ========================================================= */
+
+.admin-info {
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 14px;
+
+  margin-top: 18px;
+
+}
+
+
+.admin-info > div {
+
+  background: #f8fafc;
+
+  border: 1px solid #eef2f7;
+
+  border-radius: 12px;
+
+  padding: 12px;
+
+  min-width: 0;
+
+}
+
+
+.admin-info span {
+
+  display: block;
+
+  font-size: 11px;
+
+  font-weight: 700;
+
+  color: #94a3b8;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.5px;
+
+  margin-bottom: 5px;
+
+}
+
+
+.admin-info strong {
+
+  display: block;
+
+  font-size: 13px;
+
+  color: #1f2937;
+
+  word-break: break-word;
+
+}
+
+
+/* =========================================================
+   CARD FOOTER
+   ========================================================= */
+
+.admin-card-footer {
+
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  gap: 16px;
+
+  margin-top: 22px;
+
+  padding-top: 16px;
+
+  border-top: 1px solid #eef2f7;
+
+}
+
+
+.admin-card-footer > span {
+
+  color: #94a3b8;
+
+  font-size: 12px;
+
+  font-weight: 600;
+
+}
+
+
+/* =========================================================
+   VIEW DETAILS BUTTON
+   ========================================================= */
+
+.admin-view-btn {
+
+  border: none;
+
+  background: #4f46e5;
+
+  color: #ffffff;
+
+  padding: 10px 16px;
+
+  border-radius: 10px;
+
+  font-size: 13px;
+
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+
+}
+
+
+.admin-view-btn:hover {
+
+  background: #4338ca;
+
+  transform: translateY(-1px);
+
+}
+
+
+/* =========================================================
+   EMPTY STATE
+   ========================================================= */
+
+.no-admin-complaints {
+
+  background: #ffffff;
+
+  border: 1px solid #e5e7eb;
+
+  border-radius: 20px;
+
+  padding: 70px 30px;
+
+  text-align: center;
+
+  box-shadow:
+    0 8px 30px rgba(15, 23, 42, 0.05);
+
+}
+
+
+.empty-icon {
+
+  font-size: 48px;
+
+  margin-bottom: 12px;
+
+}
+
+
+.no-admin-complaints h3 {
+
+  margin: 0;
+
+  color: #111827;
+
+  font-size: 20px;
+
+}
+
+
+.no-admin-complaints p {
+
+  margin: 8px 0 0;
+
+  color: #6b7280;
+
+  font-size: 14px;
+
+}
+
+
+/* =========================================================
+   DETAIL HEADER
+   ========================================================= */
+
+.admin-detail-header {
+
+  display: grid;
+
+  grid-template-columns:
+    1fr
+    2fr
+    1fr;
+
+  align-items: center;
+
+  gap: 24px;
+
+  margin-bottom: 28px;
+
+}
+
+
+.admin-detail-header > div:nth-child(2) {
+
+  text-align: center;
+
+}
+
+
+.admin-detail-header h2 {
+
+  margin: 0;
+
+  font-size: 30px;
+
+  font-weight: 800;
+
+  color: #111827;
+
+}
+
+
+.admin-detail-header p {
+
+  margin: 8px 0 0;
+
+  color: #6b7280;
+
+  font-size: 14px;
+
+}
+
+
+/* =========================================================
+   DETAIL CARD
+   ========================================================= */
+
+.admin-detail-card {
+
+  background: #ffffff;
+
+  border: 1px solid #e5e7eb;
+
+  border-radius: 20px;
+
+  padding: 26px;
+
+  margin-bottom: 20px;
+
+  box-shadow:
+    0 8px 28px rgba(15, 23, 42, 0.05);
+
+}
+
+
+.admin-detail-card-header {
+
+  display: flex;
+
+  align-items: flex-start;
+
+  justify-content: space-between;
+
+  gap: 18px;
+
+  margin-bottom: 22px;
+
+}
+
+
+.admin-detail-card-header span {
+
+  display: block;
+
+  color: #6366f1;
+
+  font-size: 11px;
+
+  font-weight: 800;
+
+  letter-spacing: 1.2px;
+
+  text-transform: uppercase;
+
+  margin-bottom: 5px;
+
+}
+
+
+.admin-detail-card-header h3 {
+
+  margin: 0;
+
+  font-size: 21px;
+
+  color: #111827;
+
+}
+
+
+/* =========================================================
+   DETAIL DESCRIPTION
+   ========================================================= */
+
+.admin-detail-description {
+
+  background: #f8fafc;
+
+  border: 1px solid #eef2f7;
+
+  border-radius: 14px;
+
+  padding: 18px;
+
+  color: #374151;
+
+  line-height: 1.75;
+
+  font-size: 14px;
+
+  margin-bottom: 22px;
+
+}
+
+
+/* =========================================================
+   DETAIL GRID
+   ========================================================= */
+
+.admin-detail-grid {
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+  gap: 16px;
+
+}
+
+
+.admin-detail-item {
+
+  background: #f8fafc;
+
+  border: 1px solid #eef2f7;
+
+  border-radius: 14px;
+
+  padding: 15px;
+
+  min-width: 0;
+
+}
+
+
+.admin-detail-item span {
+
+  display: block;
+
+  color: #94a3b8;
+
+  font-size: 11px;
+
+  font-weight: 800;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.5px;
+
+  margin-bottom: 6px;
+
+}
+
+
+.admin-detail-item strong {
+
+  display: block;
+
+  color: #1f2937;
+
+  font-size: 14px;
+
+  word-break: break-word;
+
+}
+
+
+/* =========================================================
+   ADMIN ACTION CARD
+   ========================================================= */
+
+.admin-action-card {
+
+  border:
+    1px solid #c7d2fe;
+
+  background:
+    linear-gradient(
+      135deg,
+      #ffffff 0%,
+      #f8faff 100%
+    );
+
+}
+
+
+.admin-status-action-content {
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 24px;
+
+}
+
+
+.admin-current-status {
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 5px;
+
+}
+
+
+.admin-current-status span {
+
+  color: #64748b;
+
+  font-size: 12px;
+
+  font-weight: 700;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.5px;
+
+}
+
+
+.admin-current-status strong {
+
+  color: #111827;
+
+  font-size: 20px;
+
+}
+
+
+/* =========================================================
+   STATUS ACTION BUTTONS
+   ========================================================= */
+
+.admin-status-actions {
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: flex-end;
+
+  flex-wrap: wrap;
+
+  gap: 10px;
+
+}
+
+
+.status-action {
+
+  border: none;
+
+  border-radius: 11px;
+
+  padding: 11px 17px;
+
+  font-size: 13px;
+
+  font-weight: 800;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    opacity 0.2s ease;
+
+}
+
+
+.status-action:hover:not(:disabled) {
+
+  transform: translateY(-2px);
+
+}
+
+
+.status-action:disabled {
+
+  opacity: 0.55;
+
+  cursor: not-allowed;
+
+}
+
+
+/* Verify */
+
+.status-action.verify {
+
+  background: #059669;
+
+  color: #ffffff;
+
+  box-shadow:
+    0 5px 14px rgba(5, 150, 105, 0.2);
+
+}
+
+
+.status-action.verify:hover:not(:disabled) {
+
+  background: #047857;
+
+}
+
+
+/* Assign */
+
+.status-action.assign {
+
+  background: #7c3aed;
+
+  color: #ffffff;
+
+  box-shadow:
+    0 5px 14px rgba(124, 58, 237, 0.2);
+
+}
+
+
+.status-action.assign:hover:not(:disabled) {
+
+  background: #6d28d9;
+
+}
+
+
+/* Progress */
+
+.status-action.progress {
+
+  background: #ea580c;
+
+  color: #ffffff;
+
+  box-shadow:
+    0 5px 14px rgba(234, 88, 12, 0.2);
+
+}
+
+
+.status-action.progress:hover:not(:disabled) {
+
+  background: #c2410c;
+
+}
+
+
+/* Resolve */
+
+.status-action.resolve {
+
+  background: #047857;
+
+  color: #ffffff;
+
+  box-shadow:
+    0 5px 14px rgba(4, 120, 87, 0.2);
+
+}
+
+
+.status-action.resolve:hover:not(:disabled) {
+
+  background: #065f46;
+
+}
+
+
+/* Reject */
+
+.status-action.reject {
+
+  background: #ffffff;
+
+  color: #dc2626;
+
+  border: 1px solid #fecaca;
+
+}
+
+
+.status-action.reject:hover:not(:disabled) {
+
+  background: #fef2f2;
+
+}
+
+
+/* =========================================================
+   NO ACTIONS
+   ========================================================= */
+
+.admin-no-actions {
+
+  padding: 12px 16px;
+
+  border-radius: 11px;
+
+  background: #f8fafc;
+
+  color: #64748b;
+
+  font-size: 13px;
+
+  font-weight: 700;
+
+}
+
+
+/* =========================================================
+   SUCCESS / ERROR MESSAGE
+   ========================================================= */
+
+.admin-status-success {
+
+  background: #ecfdf5;
+
+  border: 1px solid #a7f3d0;
+
+  color: #047857;
+
+  border-radius: 12px;
+
+  padding: 13px 16px;
+
+  margin-bottom: 18px;
+
+  font-size: 14px;
+
+  font-weight: 700;
+
+}
+
+
+.admin-status-error {
+
+  background: #fef2f2;
+
+  border: 1px solid #fecaca;
+
+  color: #b91c1c;
+
+  border-radius: 12px;
+
+  padding: 13px 16px;
+
+  margin-bottom: 18px;
+
+  font-size: 14px;
+
+  font-weight: 700;
+
+}
+
+
+/* =========================================================
+   STATUS TIMELINE
+   ========================================================= */
+
+.admin-status-timeline {
+
+  display: flex;
+
+  align-items: flex-start;
+
+  justify-content: space-between;
+
+  position: relative;
+
+  padding: 10px 10px 18px;
+
+}
+
+
+.admin-status-timeline::before {
+
+  content: "";
+
+  position: absolute;
+
+  top: 25px;
+
+  left: 50px;
+
+  right: 50px;
+
+  height: 3px;
+
+  background: #e5e7eb;
+
+  z-index: 0;
+
+}
+
+
+.admin-timeline-item {
+
+  position: relative;
+
+  z-index: 1;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  text-align: center;
+
+  flex: 1;
+
+}
+
+
+.admin-timeline-dot {
+
+  width: 34px;
+
+  height: 34px;
+
+  border-radius: 50%;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  background: #e5e7eb;
+
+  color: #94a3b8;
+
+  font-size: 13px;
+
+  font-weight: 800;
+
+  border: 4px solid #ffffff;
+
+}
+
+
+.admin-timeline-item.completed
+.admin-timeline-dot {
+
+  background: #4f46e5;
+
+  color: #ffffff;
+
+}
+
+
+.admin-timeline-item.active
+.admin-timeline-dot {
+
+  box-shadow:
+    0 0 0 5px #e0e7ff;
+
+}
+
+
+.admin-timeline-content {
+
+  margin-top: 10px;
+
+}
+
+
+.admin-timeline-content strong {
+
+  display: block;
+
+  font-size: 12px;
+
+  color: #64748b;
+
+}
+
+
+.admin-timeline-item.completed
+.admin-timeline-content strong {
+
+  color: #374151;
+
+}
+
+
+.admin-timeline-content span {
+
+  display: block;
+
+  margin-top: 4px;
+
+  color: #4f46e5;
+
+  font-size: 10px;
+
+  font-weight: 800;
+
+}
+
+
+/* =========================================================
+   REJECTED STATUS
+   ========================================================= */
+
+.admin-rejected-status {
+
+  margin-top: 18px;
+
+  padding: 15px;
+
+  background: #fef2f2;
+
+  border: 1px solid #fecaca;
+
+  border-radius: 13px;
+
+}
+
+
+.admin-rejected-status strong {
+
+  display: block;
+
+  color: #b91c1c;
+
+  font-size: 14px;
+
+}
+
+
+.admin-rejected-status span {
+
+  display: block;
+
+  margin-top: 4px;
+
+  color: #7f1d1d;
+
+  font-size: 13px;
+
+}
+
+
+/* =========================================================
+   RECOMMENDED ACTION
+   ========================================================= */
+
+.admin-recommended-action {
+
+  margin-top: 20px;
+
+  padding: 18px;
+
+  background: #f8fafc;
+
+  border: 1px solid #eef2f7;
+
+  border-radius: 14px;
+
+}
+
+
+.admin-recommended-action span {
+
+  display: block;
+
+  color: #64748b;
+
+  font-size: 11px;
+
+  font-weight: 800;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.5px;
+
+}
+
+
+.admin-recommended-action p {
+
+  margin: 8px 0 0;
+
+  color: #374151;
+
+  font-size: 14px;
+
+  line-height: 1.65;
+
+}
+
+
+/* =========================================================
+   LOCATION
+   ========================================================= */
+
+.admin-location-box {
+
+  background: #f8fafc;
+
+  border: 1px solid #eef2f7;
+
+  border-radius: 16px;
+
+  padding: 20px;
+
+}
+
+
+.admin-location-main {
+
+  margin-bottom: 20px;
+
+}
+
+
+.admin-location-main span {
+
+  display: block;
+
+  color: #64748b;
+
+  font-size: 11px;
+
+  font-weight: 800;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.5px;
+
+  margin-bottom: 7px;
+
+}
+
+
+.admin-location-main strong {
+
+  display: block;
+
+  color: #1f2937;
+
+  font-size: 15px;
+
+  line-height: 1.6;
+
+}
+
+
+.admin-coordinates {
+
+  margin-top: 18px;
+
+  padding-top: 16px;
+
+  border-top: 1px solid #e5e7eb;
+
+}
+
+
+.admin-coordinates span {
+
+  display: block;
+
+  color: #94a3b8;
+
+  font-size: 11px;
+
+  font-weight: 800;
+
+  text-transform: uppercase;
+
+}
+
+
+.admin-coordinates strong {
+
+  display: block;
+
+  margin-top: 5px;
+
+  color: #374151;
+
+  font-size: 13px;
+
+}
+
+
+/* =========================================================
+   EMPTY DETAIL
+   ========================================================= */
+
+.admin-empty-detail {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 12px;
+
+  background: #f8fafc;
+
+  border: 1px solid #eef2f7;
+
+  border-radius: 14px;
+
+  padding: 18px;
+
+}
+
+
+.admin-empty-detail span {
+
+  font-size: 22px;
+
+}
+
+
+.admin-empty-detail p {
+
+  margin: 0;
+
+  color: #64748b;
+
+  font-size: 14px;
+
+}
+
+
+/* =========================================================
+   DETAIL BOTTOM
+   ========================================================= */
+
+.admin-detail-bottom {
+
+  padding: 10px 0 30px;
+
+}
+
+
+/* =========================================================
+   RESPONSIVE — TABLET
+   ========================================================= */
+
+@media (max-width: 1000px) {
+
+  .admin-complaints-page {
+
+    padding: 24px;
+
+  }
+
+
+  .admin-complaints-header {
+
+    grid-template-columns: 1fr;
+
+    text-align: center;
+
+  }
+
+
+  .admin-complaints-heading {
+
+    order: -1;
+
+  }
+
+
+  .admin-detail-header {
+
+    grid-template-columns: 1fr;
+
+    text-align: center;
+
+  }
+
+
+  .admin-detail-header > div:nth-child(2) {
+
+    text-align: center;
+
+  }
+
+
+  .admin-complaints-list {
+
+    grid-template-columns: 1fr;
+
+  }
+
+
+  .admin-status-action-content {
+
+    flex-direction: column;
+
+    align-items: stretch;
+
+  }
+
+
+  .admin-status-actions {
+
+    justify-content: flex-start;
+
+  }
+
+
+  .admin-detail-grid {
+
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+
+  }
+
+}
+
+
+/* =========================================================
+   RESPONSIVE — MOBILE
+   ========================================================= */
+
+@media (max-width: 650px) {
+
+  .admin-complaints-page {
+
+    padding: 16px;
+
+  }
+
+
+  .admin-complaints-heading h2 {
+
+    font-size: 26px;
+
+  }
+
+
+  .admin-detail-header h2 {
+
+    font-size: 25px;
+
+  }
+
+
+  .admin-complaint-card {
+
+    padding: 18px;
+
+  }
+
+
+  .admin-detail-card {
+
+    padding: 18px;
+
+  }
+
+
+  .admin-card-top {
+
+    flex-direction: column;
+
+    align-items: flex-start;
+
+  }
+
+
+  .admin-info {
+
+    grid-template-columns: 1fr;
+
+  }
+
+
+  .admin-detail-grid {
+
+    grid-template-columns: 1fr;
+
+  }
+
+
+  .admin-card-footer {
+
+    flex-direction: column;
+
+    align-items: flex-start;
+
+  }
+
+
+  .admin-view-btn {
+
+    width: 100%;
+
+  }
+
+
+  .admin-status-actions {
+
+    width: 100%;
+
+    flex-direction: column;
+
+  }
+
+
+  .status-action {
+
+    width: 100%;
+
+  }
+
+
+  .admin-status-timeline {
+
+    flex-direction: column;
+
+    gap: 18px;
+
+    align-items: flex-start;
+
+    padding-left: 8px;
+
+  }
+
+
+  .admin-status-timeline::before {
+
+    top: 18px;
+
+    bottom: 18px;
+
+    left: 24px;
+
+    right: auto;
+
+    width: 3px;
+
+    height: auto;
+
+  }
+
+
+  .admin-timeline-item {
+
+    flex-direction: row;
+
+    text-align: left;
+
+    gap: 12px;
+
+    flex: none;
+
+  }
+
+
+  .admin-timeline-content {
+
+    margin-top: 0;
+
+  }
+
+
+  .admin-total-complaints {
+
+    width: 100%;
+
+    box-sizing: border-box;
+
+  }
+
+}
+.admin-complaints-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.admin-download-btn {
+  border: none;
+  border-radius: 10px;
+  background: #172033;
+  color: #ffffff;
+  padding: 11px 16px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.admin-download-btn:hover {
+  background: #2563eb;
+  transform: translateY(-1px);
+}
+
+.admin-download-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+@media (max-width: 760px) {
+  .admin-complaints-header-actions {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .admin-download-btn {
+    width: 100%;
+  }
+}
+
+
+/* =========================================================
+   GOVERNMENT ROUTING
+   ========================================================= */
+
+.government-routing-card {
+  border: 1px solid #c7d2fe;
+  background:
+    linear-gradient(
+      135deg,
+      #ffffff 0%,
+      #f8faff 100%
+    );
+}
+
+.government-routing-status {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.4px !important;
+  text-transform: none !important;
+  margin: 0 !important;
+  white-space: nowrap;
+}
+
+.government-routing-status.verified {
+  color: #166534 !important;
+  background: #dcfce7;
+  border: 1px solid #bbf7d0;
+}
+
+.government-routing-status.warning {
+  color: #92400e !important;
+  background: #fef3c7;
+  border: 1px solid #fde68a;
+}
+
+.government-routing-content {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.government-routing-message {
+  padding: 16px 18px;
+  border-radius: 14px;
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+}
+
+.government-routing-message > span {
+  display: block;
+  margin-bottom: 6px;
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+}
+
+.government-routing-message p {
+  margin: 0;
+  color: #374151;
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+.government-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.government-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: #eef2ff;
+  border: 1px solid #c7d2fe;
+  color: #4338ca;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 700;
+  transition: all 0.2s ease;
+}
+
+.government-link:hover {
+  background: #e0e7ff;
+  border-color: #a5b4fc;
+  transform: translateY(-1px);
+}
+
+.government-forward-action {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 18px;
+  border-radius: 16px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.government-forward-action strong {
+  display: block;
+  color: #1e293b;
+  font-size: 15px;
+  margin-bottom: 5px;
+}
+
+.government-forward-action p {
+  margin: 0;
+  color: #64748b;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.government-forward-btn {
+  flex-shrink: 0;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 18px;
+  background: #4f46e5;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 6px 16px rgba(79, 70, 229, 0.2);
+  transition: all 0.2s ease;
+}
+
+.government-forward-btn:hover:not(:disabled) {
+  background: #4338ca;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(79, 70, 229, 0.25);
+}
+
+.government-forward-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.government-forwarded-box {
+  padding: 18px;
+  border-radius: 16px;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+}
+
+.government-forwarded-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.government-forwarded-header strong {
+  color: #166534;
+  font-size: 15px;
+}
+
+.government-forwarded-header span {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: #dcfce7;
+  color: #166534;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.government-forwarded-box .admin-detail-item {
+  background: #ffffff;
+  border-color: #dcfce7;
+}
+
+.government-forwarded-box .government-routing-message {
+  margin-top: 16px;
+  background: #ffffff;
+  border-color: #dcfce7;
+}
+
+@media (max-width: 768px) {
+  .government-forward-action {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .government-forward-btn {
+    width: 100%;
+  }
+
+  .government-forwarded-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .government-routing-status {
+    align-self: flex-start;
+  }
+}
+
+/* =========================================================
+   GOVERNMENT ACTION STATUS
+   ========================================================= */
+
+.government-action-status-card {
+  border: 1px solid #dbeafe;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fbff 100%);
+}
+
+.government-action-status-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px;
+  border-radius: 999px;
+  color: #1d4ed8;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  font-size: 11px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.government-action-note {
+  margin-top: 18px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  color: #475569;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  font-size: 12px;
+  line-height: 1.65;
+}
+
+.government-action-note strong {
+  color: #1e293b;
+}
+
+/* =========================================================
+   CIVICFIX RESOLUTION + PROOF
+   ========================================================= */
