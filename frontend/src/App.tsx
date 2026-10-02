@@ -5,6 +5,7 @@ import Register from "./components/auth/register";
 import Login from "./components/auth/login";
 import ComplaintForm from "./components/ComplaintForm";
 import AdminDashboard from "./components/admin/AdminDashboard";
+import GovernmentDashboard from "./components/government/governmentDashboard"
 
 function App() {
   const [authMode, setAuthMode] = useState<"register" | "login">(
@@ -45,6 +46,7 @@ function App() {
       <div className="app">
 
         <div className="app-header">
+
           <h1>CivicFix AI</h1>
 
           <button
@@ -54,12 +56,26 @@ function App() {
           >
             Logout
           </button>
+
         </div>
+
+        {/* ADMIN */}
 
         {userRole === "admin" ? (
           <AdminDashboard />
+
+        ) : userRole === "government" ? (
+
+          /* GOVERNMENT */
+
+          <GovernmentDashboard />
+
         ) : (
+
+          /* CITIZEN */
+
           <ComplaintForm />
+
         )}
 
       </div>

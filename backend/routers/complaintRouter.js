@@ -1386,7 +1386,39 @@ router.patch(
         }
     }
 );
+// =====================================================
+// GOVERNMENT - GET FORWARDED COMPLAINTS
+// =====================================================
+router.get(
+    "/government/all",
+    authMiddleware,
+    governmentMiddleware,
+    async (req, res) => {
+        try {
+            const complaints = await Complaint.find({
+                civicFixStatus: {
+                    $in: ["Forwarded", "Resolved"]
+                }
+            })
+                .sort({ createdAt: -1 })
+                .lean();
 
+            return res.status(200).json({
+                success: true,
+                count: complaints.length,
+                complaints
+            });
+
+        } catch (error) {
+            console.error("Government complaints fetch error:", error);
+
+            return res.status(500).json({
+                success: false,
+                message: "Failed to fetch government complaints"
+            });
+        }
+    }
+);
 
 // =========================================================
 // GOVERNMENT — ACTION WORKFLOW

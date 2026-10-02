@@ -1,22 +1,22 @@
-import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 import dotenv from "dotenv";
+import { fileURLToPath } from "node:url";
+import connectDB, { disconnectDB } from "./backend/config/db.js";
 import User from "./backend/models/User.js";
 
-dotenv.config({ path: "./backend/.env" });
+dotenv.config({ path: fileURLToPath(new URL("./backend/.env", import.meta.url)) });
 
 const MONGO_URI = process.env.MONGO_URI;
 
-if (!MONGO_URI) {
-  console.error("❌ MONGO_URI not found in backend/.env");
-  process.exit(1);
-}
-
 const createGovernmentUser = async () => {
   try {
+    if (!MONGO_URI) {
+      throw new Error("MONGO_URI not found in backend/.env");
+    }
+
     console.log("🔄 Connecting to MongoDB...");
 
-    await mongoose.connect(MONGO_URI);
+    await connectDB(MONGO_URI);
 
     console.log("✅ MongoDB connected");
 
@@ -29,9 +29,7 @@ const createGovernmentUser = async () => {
       console.log("⚠️ Government user already exists");
       console.log(`Email: ${email}`);
       console.log(`Role: ${existingUser.role}`);
-
-      await mongoose.connection.close();
-      process.exit(0);
+      return;
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -53,15 +51,12 @@ const createGovernmentUser = async () => {
     console.log(`Password : ${password}`);
     console.log(`Role     : ${governmentUser.role}`);
     console.log("====================================");
-
-    await mongoose.connection.close();
-    process.exit(0);
   } catch (error) {
     console.error("❌ Error creating government user:");
-    console.error(error);
-
-    await mongoose.connection.close();
-    process.exit(1);
+    console.error(error.message);
+    process.exitCode = 1;
+  } finally {
+    await disconnectDB();
   }
 };
 
