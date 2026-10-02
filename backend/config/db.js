@@ -1,13 +1,24 @@
-import mongoose from  "mongoose"
+import mongoose from "mongoose";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const connectDB = async () => {
-    try{
-        await mongoose.connect("mongodb://localhost:27017/civicfix")
-        console.log("MongoDB Connected ✅")
+    try {
+        const mongoURI = process.env.MONGO_URI;
+
+        if (!mongoURI) {
+            throw new Error("MONGO_URI is not defined in .env");
+        }
+
+        await mongoose.connect(mongoURI);
+
+        console.log("MongoDB Connected ✅");
+    } catch (error) {
+        console.log("MongoDB Connection Failed ❌");
+        console.log(error.message);
+        process.exit(1);
     }
-    catch(error){
-        console.log("MongoDB Connection Failed ❌")
-        console.log(error.message)
-    }
-}
-export default connectDB
+};
+
+export default connectDB;

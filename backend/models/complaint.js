@@ -231,7 +231,27 @@ const complaintSchema = new mongoose.Schema(
                 type: [String],
                 default: []
             },
-            lastUpdatedAt: { type: Date, default: null }
+            lastUpdatedAt: { type: Date, default: null },
+            lastUpdatedBy: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "User",
+                default: null
+            }
+        },
+
+        resolutionReview: {
+            status: {
+                type: String,
+                enum: ["Pending", "Approved", "Rejected"],
+                default: "Pending"
+            },
+            reviewedAt: { type: Date, default: null },
+            reviewedBy: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "User",
+                default: null
+            },
+            note: { type: String, default: "" }
         },
 
         // =====================================================

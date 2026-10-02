@@ -15,6 +15,7 @@ import {
 
 import authMiddleware from "../middlewares/authMiddleware.js";
 import adminMiddleware from "../middlewares/adminMiddleware.js";
+import governmentMiddleware from "../middlewares/governmentMiddleware.js";
 
 const router = express.Router();
 
@@ -30,14 +31,8 @@ const getCivicFixStatus = (complaint) => {
 
     if (complaint.status === "Under Review") return "Under Review";
     if (complaint.status === "Verified") return "Verified";
-    if (complaint.status === "Assigned") return "Assigned";
-    if (complaint.status === "In Progress") return "In Progress";
-    if (complaint.status === "Resolved") return "Resolved";
-    if (complaint.status === "Rejected") return "Rejected";
-    if (complaint.status === "Routed") return "Routed";
     if (complaint.status === "Forwarded") return "Forwarded";
-
-
+    if (complaint.status === "Resolved") return "Resolved";
 
     return "Reported";
 };
@@ -1386,6 +1381,269 @@ router.patch(
                 success: false,
                 message:
                     "Failed to record government forwarding.",
+                error: error.message
+            });
+        }
+    }
+);
+
+
+// =========================================================
+// GOVERNMENT — ACTION WORKFLOW
+// Government owns the operational status after CivicFix forwards
+// the complaint. Admin cannot change these statuses.
+// =========================================================
+
+const governmentTransitionMap = {
+    "Not Received": ["Received"],
+    "Received": ["Accepted"],
+    "Accepted": ["Work Started"],
+    "Work Started": ["In Progress"],
+    "In Progress": ["Resolution Submitted"],
+    "Resolution Submitted": [],
+};
+
+router.patch(
+    "/government/:complaintId/action",
+    authMiddleware,
+    governmentMiddleware,
+    async (req, res) => {
+        try {
+            const { complaintId } = req.params;
+            const { status, resolutionNote = "", proofUrls = [] } = req.body;
+
+            const allowedStatuses = Object.keys(governmentTransitionMap);
+            const requestedStatus = String(status || "").trim();
+
+            if (!allowedStatuses.includes(requestedStatus)) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Invalid government action status."
+                });
+            }
+
+            const complaint = await Complaint.findById(complaintId);
+
+            if (!complaint) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Complaint not found"
+                });
+            }
+
+            if (getCivicFixStatus(complaint) !== "Forwarded") {
+                return res.status(400).json({
+                    success: false,
+                    message: "Government action can start only after CivicFix forwards the complaint."
+                });
+            }
+
+            const currentGovernmentStatus = complaint.governmentStatus || "Not Received";
+
+            if (requestedStatus === currentGovernmentStatus) {
+                return res.status(400).json({
+                    success: false,
+                    message: `Government status is already ${currentGovernmentStatus}.`
+                });
+            }
+
+            if (!(governmentTransitionMap[currentGovernmentStatus] || []).includes(requestedStatus)) {
+                return res.status(400).json({
+                    success: false,
+                    message: `Invalid government status transition: ${currentGovernmentStatus} → ${requestedStatus}.`,
+                    governmentStatus: currentGovernmentStatus
+                });
+            }
+
+            const now = new Date();
+            complaint.governmentStatus = requestedStatus;
+            complaint.governmentAction.lastUpdatedAt = now;
+            complaint.governmentAction.lastUpdatedBy = req.user.userId;
+
+            if (requestedStatus === "Received") {
+                complaint.governmentAction.receivedAt = now;
+            }
+
+            if (requestedStatus === "Accepted") {
+                complaint.governmentAction.acceptedAt = now;
+            }
+
+            if (requestedStatus === "Work Started") {
+                complaint.governmentAction.workStartedAt = now;
+            }
+
+            if (requestedStatus === "Resolution Submitted") {
+                const cleanNote = String(resolutionNote || "").trim();
+
+                if (!cleanNote) {
+                    return res.status(400).json({
+                        success: false,
+                        message: "Resolution note is required before submitting a resolution."
+                    });
+                }
+
+                if (!Array.isArray(proofUrls) || proofUrls.length === 0) {
+                    return res.status(400).json({
+                        success: false,
+                        message: "At least one proof URL is required before submitting a resolution."
+                    });
+                }
+
+                const cleanProofUrls = proofUrls
+                    .map((url) => String(url || "").trim())
+                    .filter(Boolean)
+                    .slice(0, 10);
+
+                if (cleanProofUrls.length === 0) {
+                    return res.status(400).json({
+                        success: false,
+                        message: "At least one valid proof URL is required."
+                    });
+                }
+
+                complaint.governmentAction.resolutionSubmittedAt = now;
+                complaint.governmentAction.resolutionNote = cleanNote;
+                complaint.governmentAction.proofUrls = cleanProofUrls;
+                complaint.resolutionReview = {
+                    status: "Pending",
+                    reviewedAt: null,
+                    reviewedBy: null,
+                    note: ""
+                };
+            }
+
+            await complaint.save();
+
+            const updatedComplaint = await Complaint.findById(complaint._id)
+                .populate("userId", "name email")
+                .populate("incidentId")
+                .populate("governmentRouting.serviceId")
+                .populate("governmentRouting.sourceId")
+                .populate("governmentAction.lastUpdatedBy", "name email")
+                .populate("resolutionReview.reviewedBy", "name email");
+
+            return res.status(200).json({
+                success: true,
+                message: `Government status updated to ${requestedStatus}.`,
+                complaint: updatedComplaint
+            });
+        } catch (error) {
+            console.error("❌ Government action update error:", error);
+            return res.status(500).json({
+                success: false,
+                message: "Failed to update government action.",
+                error: error.message
+            });
+        }
+    }
+);
+
+// =========================================================
+// ADMIN — VERIFY GOVERNMENT RESOLUTION
+// =========================================================
+
+router.patch(
+    "/admin/:complaintId/resolution-review",
+    authMiddleware,
+    adminMiddleware,
+    async (req, res) => {
+        try {
+            const { complaintId } = req.params;
+            const { decision, note = "" } = req.body;
+            const normalizedDecision = String(decision || "").trim().toLowerCase();
+            const reviewNote = String(note || "").trim();
+
+            if (!["approve", "reject"].includes(normalizedDecision)) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Decision must be approve or reject."
+                });
+            }
+
+            const complaint = await Complaint.findById(complaintId);
+
+            if (!complaint) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Complaint not found"
+                });
+            }
+
+            if (getCivicFixStatus(complaint) !== "Forwarded") {
+                return res.status(400).json({
+                    success: false,
+                    message: "Only forwarded complaints can have a government resolution reviewed."
+                });
+            }
+
+            if (complaint.governmentStatus !== "Resolution Submitted") {
+                return res.status(400).json({
+                    success: false,
+                    message: "Government must submit a resolution before admin review."
+                });
+            }
+
+            if (!complaint.governmentAction?.resolutionNote?.trim()) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Resolution note is missing."
+                });
+            }
+
+            if (!Array.isArray(complaint.governmentAction?.proofUrls) || complaint.governmentAction.proofUrls.length === 0) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Resolution proof is required before admin approval."
+                });
+            }
+
+            const now = new Date();
+
+            if (normalizedDecision === "approve") {
+                complaint.civicFixStatus = "Resolved";
+                complaint.status = "Resolved";
+                complaint.resolutionReview = {
+                    status: "Approved",
+                    reviewedAt: now,
+                    reviewedBy: req.user.userId,
+                    note: reviewNote
+                };
+            } else {
+                complaint.governmentStatus = "In Progress";
+                complaint.governmentAction.resolutionSubmittedAt = null;
+                complaint.governmentAction.lastUpdatedAt = now;
+                complaint.governmentAction.lastUpdatedBy = req.user.userId;
+                complaint.resolutionReview = {
+                    status: "Rejected",
+                    reviewedAt: now,
+                    reviewedBy: req.user.userId,
+                    note: reviewNote || "Please review and resubmit the resolution with sufficient proof."
+                };
+            }
+
+            await complaint.save();
+
+            const updatedComplaint = await Complaint.findById(complaint._id)
+                .populate("userId", "name email")
+                .populate("incidentId")
+                .populate("governmentRouting.serviceId")
+                .populate("governmentRouting.sourceId")
+                .populate("governmentAction.lastUpdatedBy", "name email")
+                .populate("resolutionReview.reviewedBy", "name email");
+
+            return res.status(200).json({
+                success: true,
+                message:
+                    normalizedDecision === "approve"
+                        ? "Government resolution approved and complaint marked Resolved."
+                        : "Resolution rejected. Complaint returned to government In Progress status.",
+                complaint: updatedComplaint
+            });
+        } catch (error) {
+            console.error("❌ Government resolution review error:", error);
+            return res.status(500).json({
+                success: false,
+                message: "Failed to review government resolution.",
                 error: error.message
             });
         }

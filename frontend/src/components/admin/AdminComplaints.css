@@ -1990,3 +1990,170 @@
 /* =========================================================
    CIVICFIX RESOLUTION + PROOF
    ========================================================= */
+
+
+/* =========================================================
+   GOVERNMENT RESOLUTION REVIEW
+   ========================================================= */
+
+.government-resolution-review-card {
+  margin-top: 18px;
+  padding: 18px;
+  border: 1px solid #fde68a;
+  border-radius: 16px;
+  background: #fffbeb;
+}
+
+.government-resolution-review-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.government-resolution-review-header span:first-child {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #92400e;
+}
+
+.government-resolution-review-header h4 {
+  margin: 5px 0 0;
+  font-size: 17px;
+  color: #1f2937;
+}
+
+.government-resolution-pending-badge {
+  padding: 7px 11px;
+  border-radius: 999px;
+  background: #fef3c7;
+  border: 1px solid #fcd34d;
+  color: #92400e;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.government-resolution-note-box,
+.government-proof-section {
+  padding: 14px;
+  border-radius: 12px;
+  background: #ffffff;
+  border: 1px solid #fde68a;
+}
+
+.government-resolution-note-box span,
+.government-proof-section > span {
+  display: block;
+  margin-bottom: 7px;
+  font-size: 11px;
+  font-weight: 800;
+  color: #92400e;
+  text-transform: uppercase;
+}
+
+.government-resolution-note-box p,
+.government-proof-section p {
+  margin: 0;
+  color: #475569;
+  line-height: 1.6;
+  font-size: 13px;
+}
+
+.government-proof-section {
+  margin-top: 12px;
+}
+
+.government-proof-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+}
+
+.government-proof-link {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 11px;
+  border-radius: 9px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #1d4ed8;
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.government-proof-link:hover {
+  text-decoration: underline;
+}
+
+.government-resolution-review-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.government-resolution-approve-btn,
+.government-resolution-reject-btn {
+  border: none;
+  border-radius: 10px;
+  padding: 11px 15px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.government-resolution-approve-btn {
+  background: #166534;
+  color: #ffffff;
+}
+
+.government-resolution-reject-btn {
+  background: #ffffff;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+.government-resolution-approve-btn:disabled,
+.government-resolution-reject-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.government-resolution-approved-box,
+.government-resolution-rejected-box {
+  margin-top: 16px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  line-height: 1.6;
+  font-size: 13px;
+}
+
+.government-resolution-approved-box {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  color: #166534;
+}
+
+.government-resolution-rejected-box {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+}
+
+.government-resolution-rejected-box p {
+  margin: 5px 0 0;
+}
+
+@media (max-width: 768px) {
+  .government-resolution-review-header,
+  .government-resolution-review-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .government-resolution-approve-btn,
+  .government-resolution-reject-btn {
+    width: 100%;
+  }
+}

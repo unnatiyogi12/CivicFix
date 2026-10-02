@@ -39,6 +39,14 @@ interface Complaint {
     resolutionNote?: string;
     proofUrls?: string[];
     lastUpdatedAt?: string | null;
+    lastUpdatedBy?: { name?: string; email?: string } | string | null;
+  };
+
+  resolutionReview?: {
+    status?: string;
+    reviewedAt?: string | null;
+    reviewedBy?: { name?: string; email?: string } | string | null;
+    note?: string;
   };
 
   imageUrl?: string;
@@ -657,6 +665,89 @@ function AdminComplaints({
 
 
   // =======================================================
+  // REVIEW GOVERNMENT RESOLUTION
+  // =======================================================
+
+  const reviewGovernmentResolution = async (
+    complaintId: string,
+    decision: "approve" | "reject"
+  ) => {
+    try {
+      setUpdatingStatus(true);
+      setStatusError("");
+      setStatusSuccess("");
+
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        setStatusError("Admin authentication required.");
+        return;
+      }
+
+      const note =
+        decision === "reject"
+          ? window.prompt(
+              "Why is the government resolution being rejected?",
+              "Please provide clearer proof or complete the required work."
+            ) || ""
+          : "Government resolution and proof verified by CivicFix admin.";
+
+      if (decision === "reject" && !note.trim()) {
+        setStatusError("A rejection reason is required.");
+        return;
+      }
+
+      const confirmed = window.confirm(
+        decision === "approve"
+          ? "Approve the government resolution and mark this complaint Resolved?"
+          : "Reject this resolution and return the complaint to Government In Progress?"
+      );
+
+      if (!confirmed) return;
+
+      const response = await fetch(
+        `http://localhost:5000/api/complaints/admin/${complaintId}/resolution-review`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ decision, note }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.message || "Failed to review government resolution."
+        );
+      }
+
+      const updatedComplaint: Complaint = data.complaint;
+      setSelectedComplaint(updatedComplaint);
+      setComplaintList((previousComplaints) =>
+        previousComplaints.map((item) =>
+          item._id === complaintId ? updatedComplaint : item
+        )
+      );
+      await fetchAllComplaints();
+      setStatusSuccess(data.message || "Government resolution reviewed.");
+    } catch (error) {
+      console.error("Government resolution review error:", error);
+      setStatusError(
+        error instanceof Error
+          ? error.message
+          : "Something went wrong while reviewing the resolution."
+      );
+    } finally {
+      setUpdatingStatus(false);
+    }
+  };
+
+
+  // =======================================================
   // GET ACTIONS BASED ON STATUS
   // =======================================================
 
@@ -1007,11 +1098,102 @@ function AdminComplaints({
           </div>
 
           <div className="government-action-note">
-            <strong>Important:</strong> CivicFix admin can verify, route and forward
-            a complaint, but cannot mark government work as started, in progress
-            or resolved. Those statuses require an authorized government-side
-            action/integration.
+            <strong>Role separation:</strong> Government controls the operational
+            status after forwarding. CivicFix admin only reviews the submitted
+            government resolution and proof before final closure.
           </div>
+
+          {selectedComplaint.governmentStatus === "Resolution Submitted" && (
+            <div className="government-resolution-review-card">
+              <div className="government-resolution-review-header">
+                <div>
+                  <span>RESOLUTION SUBMITTED</span>
+                  <h4>Government Resolution & Proof</h4>
+                </div>
+                <span className="government-resolution-pending-badge">
+                  {selectedComplaint.resolutionReview?.status || "Pending"}
+                </span>
+              </div>
+
+              <div className="government-resolution-note-box">
+                <span>Action Taken</span>
+                <p>
+                  {selectedComplaint.governmentAction?.resolutionNote ||
+                    "No resolution note provided."}
+                </p>
+              </div>
+
+              <div className="government-proof-section">
+                <span>Proof</span>
+                {selectedComplaint.governmentAction?.proofUrls?.length ? (
+                  <div className="government-proof-list">
+                    {selectedComplaint.governmentAction.proofUrls.map(
+                      (url, index) => (
+                        <a
+                          key={`${url}-${index}`}
+                          href={url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="government-proof-link"
+                        >
+                          📎 Proof {index + 1}
+                        </a>
+                      )
+                    )}
+                  </div>
+                ) : (
+                  <p>No proof submitted.</p>
+                )}
+              </div>
+
+              <div className="government-resolution-review-actions">
+                <button
+                  type="button"
+                  className="government-resolution-approve-btn"
+                  disabled={updatingStatus}
+                  onClick={() =>
+                    reviewGovernmentResolution(
+                      selectedComplaint._id,
+                      "approve"
+                    )
+                  }
+                >
+                  {updatingStatus ? "Updating..." : "✓ Verify & Resolve"}
+                </button>
+
+                <button
+                  type="button"
+                  className="government-resolution-reject-btn"
+                  disabled={updatingStatus}
+                  onClick={() =>
+                    reviewGovernmentResolution(
+                      selectedComplaint._id,
+                      "reject"
+                    )
+                  }
+                >
+                  ↩ Request Rework
+                </button>
+              </div>
+            </div>
+          )}
+
+          {selectedComplaint.resolutionReview?.status === "Approved" && (
+            <div className="government-resolution-approved-box">
+              ✓ Government resolution was verified by CivicFix admin and the
+              complaint is now Resolved.
+            </div>
+          )}
+
+          {selectedComplaint.resolutionReview?.status === "Rejected" && (
+            <div className="government-resolution-rejected-box">
+              <strong>Rework requested</strong>
+              <p>
+                {selectedComplaint.resolutionReview.note ||
+                  "Government needs to update the resolution."}
+              </p>
+            </div>
+          )}
         </div>
 
 

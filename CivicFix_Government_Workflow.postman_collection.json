@@ -1,0 +1,250 @@
+{
+  "info": {
+    "name": "CivicFix Government Workflow",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000/api"
+    },
+    {
+      "key": "complaintId",
+      "value": "PASTE_FORWARDED_COMPLAINT_ID"
+    },
+    {
+      "key": "governmentToken",
+      "value": "PASTE_GOVERNMENT_JWT"
+    },
+    {
+      "key": "adminToken",
+      "value": "PASTE_ADMIN_JWT"
+    }
+  ],
+  "item": [
+    {
+      "name": "Government - Received",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{governmentToken}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"Received\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/complaints/government/{{complaintId}}/action",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "complaints",
+            "government",
+            "{{complaintId}}",
+            "action"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Government - Accepted",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{governmentToken}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"Accepted\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/complaints/government/{{complaintId}}/action",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "complaints",
+            "government",
+            "{{complaintId}}",
+            "action"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Government - Work Started",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{governmentToken}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"Work Started\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/complaints/government/{{complaintId}}/action",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "complaints",
+            "government",
+            "{{complaintId}}",
+            "action"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Government - In Progress",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{governmentToken}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"In Progress\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/complaints/government/{{complaintId}}/action",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "complaints",
+            "government",
+            "{{complaintId}}",
+            "action"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Government - Submit Resolution + Proof",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{governmentToken}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"Resolution Submitted\",\n  \"resolutionNote\": \"Street light wiring was repaired and tested.\",\n  \"proofUrls\": [\n    \"https://example.com/before.jpg\",\n    \"https://example.com/after.jpg\"\n  ]\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/complaints/government/{{complaintId}}/action",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "complaints",
+            "government",
+            "{{complaintId}}",
+            "action"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Admin - Approve Resolution",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{adminToken}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"decision\": \"approve\",\n  \"note\": \"Resolution and proof verified.\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/complaints/admin/{{complaintId}}/resolution-review",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "complaints",
+            "admin",
+            "{{complaintId}}",
+            "resolution-review"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Admin - Reject / Request Rework",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{adminToken}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"decision\": \"reject\",\n  \"note\": \"Please provide clearer completion proof.\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/complaints/admin/{{complaintId}}/resolution-review",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "complaints",
+            "admin",
+            "{{complaintId}}",
+            "resolution-review"
+          ]
+        }
+      }
+    }
+  ]
+}
