@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import connectDB from "./config/db.js";
 import authRouter from "./routers/authRouter.js";
 import complaintRouter from "./routers/complaintRouter.js";
+import analyticsRouter from "./routers/analyticsRouter.js";
 
 dotenv.config();
 const app = express();
@@ -20,6 +21,7 @@ app.get("/", (req, res) => {
 });
 app.use("/api/auth" , authRouter);
 app.use("/api/complaints", complaintRouter);
+app.use("/api/analytics", analyticsRouter);
 
 
 const PORT = process.env.PORT || 5000;

@@ -1,112 +1,79 @@
-import { useEffect, useMemo, useState } from "react";
-import "./AdminDashboard.css";
+import { useEffect, useState } from "react";
 import AdminComplaints from "./AdminComplaints";
-
-// =========================================================
-// TYPES
-// =========================================================
-
-interface Incident {
-  _id?: string;
-  incidentId?: string;
-  complaintCount?: number;
-  status?: string;
-}
+import AdminAnalytics from "./AdminAnalytics";
+import "./AdminDashboard.css";
 
 interface Complaint {
   _id: string;
-
   title: string;
+  description?: string;
 
-  description: string;
+  status?: string;
+  civicFixStatus?: string;
+  governmentStatus?: string;
+  citizenVerification?: string;
 
-  category: string;
-
-  severity: string;
-
-  status: string;
-
+  severity?: string;
+  priority?: string;
   priorityScore?: number;
 
-  priority?: string;
-
-  recommendedAction?: string;
+  category?: string;
 
   aiClassification?: {
     isCivic?: boolean | null;
     area?: string;
     subcategory?: string;
-    subcategorySource?: string;
     severity?: string;
     department?: string;
   };
 
-  duplicateDetection?: {
-    isDuplicate?: boolean;
-    similarityScore?: number;
-    matchedComplaintId?: string | null;
-    message?: string;
-  };
-
-  incidentId?: Incident | string | null;
-
-  incidentStatus?: string;
-
   location?: {
     address?: string;
-    latitude?: number;
-    longitude?: number;
     ward?: string;
-    wardCode?: string;
     zone?: string;
     municipality?: string;
-    ulbCode?: string;
     district?: string;
     state?: string;
-    jurisdiction?: string;
   };
 
-  userId?: {
-    name?: string;
-    email?: string;
-  };
-
-  createdAt: string;
-
+  createdAt?: string;
   updatedAt?: string;
 }
 
-// =========================================================
-// COMPONENT
-// =========================================================
+type DashboardView =
+  | "overview"
+  | "complaints"
+  | "analytics";
 
 function AdminDashboard() {
-  // =======================================================
-  // STATE
-  // =======================================================
+  const [activeView, setActiveView] =
+    useState<DashboardView>("overview");
 
-  const [complaints, setComplaints] = useState<Complaint[]>([]);
+  const [complaints, setComplaints] =
+    useState<Complaint[]>([]);
 
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] =
+    useState(true);
 
-  const [error, setError] = useState("");
+  const [error, setError] =
+    useState("");
 
-  const [showAllComplaints, setShowAllComplaints] =
-    useState(false);
-
-  // =======================================================
-  // FETCH COMPLAINTS
-  // =======================================================
+  // =========================================================
+  // FETCH ADMIN COMPLAINTS
+  // =========================================================
 
   const fetchComplaints = async () => {
     try {
       setLoading(true);
       setError("");
 
-      const token = localStorage.getItem("token");
+      const token =
+        localStorage.getItem("token");
 
       if (!token) {
-        setError("Admin authentication required.");
+        setError(
+          "Admin authentication required."
+        );
         return;
       }
 
@@ -115,757 +82,793 @@ function AdminDashboard() {
         {
           method: "GET",
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization:
+              `Bearer ${token}`,
           },
         }
       );
 
-      const data = await response.json();
+      const data =
+        await response.json();
 
       if (!response.ok) {
         throw new Error(
-          data.message || "Failed to fetch complaints."
+          data.message ||
+            "Failed to fetch complaints."
         );
       }
 
-      const fetchedComplaints: Complaint[] =
+      setComplaints(
         Array.isArray(data.complaints)
           ? data.complaints
-          : [];
-
-      setComplaints(fetchedComplaints);
+          : []
+      );
     } catch (err) {
       console.error(
-        "Admin dashboard fetch error:",
+        "Admin dashboard error:",
         err
       );
 
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError("Failed to load complaints.");
-      }
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Failed to load dashboard."
+      );
     } finally {
       setLoading(false);
     }
   };
 
-  // =======================================================
-  // INITIAL LOAD
-  // =======================================================
-
   useEffect(() => {
     fetchComplaints();
   }, []);
 
-  // =======================================================
-  // SORT COMPLAINTS
-  // =======================================================
+  // =========================================================
+  // CALCULATE DASHBOARD STATISTICS
+  // =========================================================
 
-  const sortedComplaints = useMemo(() => {
-    return [...complaints].sort(
-      (a, b) =>
-        new Date(b.createdAt).getTime() -
-        new Date(a.createdAt).getTime()
-    );
-  }, [complaints]);
+  const totalComplaints =
+    complaints.length;
 
-  // =======================================================
-  // ONLY LATEST 4 FOR DASHBOARD
-  // =======================================================
+  const resolvedComplaints =
+    complaints.filter(
+      (complaint) =>
+        (complaint.civicFixStatus ||
+          complaint.status) ===
+        "Resolved"
+    ).length;
 
-  const recentComplaints = useMemo(() => {
-    return sortedComplaints.slice(0, 4);
-  }, [sortedComplaints]);
+  const reopenedComplaints =
+    complaints.filter(
+      (complaint) =>
+        (complaint.civicFixStatus ||
+          complaint.status) ===
+        "Reopened"
+    ).length;
 
-  // =======================================================
-  // STATISTICS
-  // =======================================================
+  const rejectedComplaints =
+    complaints.filter(
+      (complaint) =>
+        (complaint.civicFixStatus ||
+          complaint.status) ===
+        "Rejected"
+    ).length;
 
-  const totalComplaints = complaints.length;
+  const forwardedComplaints =
+    complaints.filter(
+      (complaint) =>
+        (complaint.civicFixStatus ||
+          complaint.status) ===
+        "Forwarded"
+    ).length;
 
-  const resolvedComplaints = complaints.filter(
-    (complaint) =>
-      complaint.status === "Resolved"
-  ).length;
+  const underReviewComplaints =
+    complaints.filter(
+      (complaint) =>
+        (complaint.civicFixStatus ||
+          complaint.status) ===
+        "Under Review"
+    ).length;
 
-  const inProgressComplaints = complaints.filter(
-    (complaint) =>
-      complaint.status === "In Progress"
-  ).length;
+  const verifiedComplaints =
+    complaints.filter(
+      (complaint) =>
+        (complaint.civicFixStatus ||
+          complaint.status) ===
+        "Verified"
+    ).length;
 
-  const pendingComplaints = complaints.filter(
-    (complaint) =>
-      complaint.status === "Reported" ||
-      complaint.status === "Verified" ||
-      complaint.status === "Assigned"
-  ).length;
+  const openComplaints =
+    complaints.filter((complaint) => {
+      const status =
+        complaint.civicFixStatus ||
+        complaint.status;
 
-  const rejectedComplaints = complaints.filter(
-    (complaint) =>
-      complaint.status === "Rejected"
-  ).length;
+      return (
+        status !== "Resolved" &&
+        status !== "Rejected"
+      );
+    }).length;
 
-  const highPriorityComplaints = complaints.filter(
-    (complaint) =>
-      complaint.priority === "High" ||
-      complaint.priority === "Critical"
-  ).length;
+  const citizenConfirmed =
+    complaints.filter(
+      (complaint) =>
+        complaint.citizenVerification ===
+        "Confirmed"
+    ).length;
 
-  const duplicateComplaints = complaints.filter(
-    (complaint) =>
-      complaint.duplicateDetection?.isDuplicate === true
-  ).length;
+  // =========================================================
+  // REFRESH
+  // =========================================================
 
-  const civicComplaints = complaints.filter(
-    (complaint) =>
-      complaint.aiClassification?.isCivic === true
-  ).length;
-
-  // =======================================================
-  // DEPARTMENT STATS
-  // =======================================================
-
-  const departmentStats = useMemo(() => {
-    const stats: Record<string, number> = {};
-
-    complaints.forEach((complaint) => {
-      const department =
-        complaint.aiClassification?.department ||
-        "Unassigned";
-
-      stats[department] =
-        (stats[department] || 0) + 1;
-    });
-
-    return Object.entries(stats)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 6);
-  }, [complaints]);
-
-  // =======================================================
-  // AREA STATS
-  // =======================================================
-
-  const areaStats = useMemo(() => {
-    const stats: Record<string, number> = {};
-
-    complaints.forEach((complaint) => {
-      const area =
-        complaint.aiClassification?.area ||
-        "Unknown";
-
-      stats[area] =
-        (stats[area] || 0) + 1;
-    });
-
-    return Object.entries(stats)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 6);
-  }, [complaints]);
-
-  // =======================================================
-  // WARD STATS
-  // =======================================================
-
-  const wardStats = useMemo(() => {
-    const stats: Record<string, number> = {};
-
-    complaints.forEach((complaint) => {
-      const ward =
-        complaint.location?.ward ||
-        "Unknown";
-
-      stats[ward] =
-        (stats[ward] || 0) + 1;
-    });
-
-    return Object.entries(stats)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 6);
-  }, [complaints]);
-
-  // =======================================================
-  // DATE FORMAT
-  // =======================================================
-
-  const formatDate = (date: string) => {
-    return new Date(date).toLocaleDateString(
-      "en-IN",
-      {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-      }
-    );
+  const handleRefresh = async () => {
+    await fetchComplaints();
   };
 
-  // =======================================================
-  // STATUS CLASS
-  // =======================================================
+  // =========================================================
+  // OPEN COMPLAINTS
+  // =========================================================
 
-  const getStatusClass = (status: string) => {
-    return `status-${status
-      .toLowerCase()
-      .replace(/\s+/g, "-")}`;
+  const openComplaintsPage = () => {
+    setActiveView("complaints");
   };
 
-  // =======================================================
-  // OPEN ALL COMPLAINTS
-  // =======================================================
+  // =========================================================
+  // OPEN ANALYTICS
+  // =========================================================
 
-  if (showAllComplaints) {
+  const openAnalyticsPage = () => {
+    setActiveView("analytics");
+  };
+
+  // =========================================================
+  // BACK TO DASHBOARD
+  // =========================================================
+
+  const handleBackToDashboard = () => {
+    setActiveView("overview");
+
+    // Refresh latest complaint data
+    fetchComplaints();
+  };
+
+  // =========================================================
+  // IF COMPLAINT PAGE IS OPEN
+  // =========================================================
+
+  if (activeView === "complaints") {
     return (
       <AdminComplaints
-
-        onBack={() => {
-          setShowAllComplaints(false);
-          fetchComplaints();
-        }}
+        onBack={
+          handleBackToDashboard
+        }
       />
     );
   }
 
-  // =======================================================
-  // DASHBOARD
-  // =======================================================
+  // =========================================================
+  // IF ANALYTICS PAGE IS OPEN
+  // =========================================================
+
+  if (activeView === "analytics") {
+    return (
+      <div className="admin-dashboard-wrapper">
+
+        <div className="admin-page-topbar">
+
+          <button
+            type="button"
+            className="admin-topbar-back"
+            onClick={
+              handleBackToDashboard
+            }
+          >
+            ← Dashboard
+          </button>
+
+          <div className="admin-topbar-title">
+            <span>
+              CIVICFIX AI
+            </span>
+
+            <h2>
+              Analytics & Intelligence
+            </h2>
+          </div>
+
+          <button
+            type="button"
+            className="admin-refresh-btn"
+            onClick={
+              handleRefresh
+            }
+          >
+            ↻ Refresh
+          </button>
+
+        </div>
+
+        <AdminAnalytics />
+
+      </div>
+    );
+  }
+
+  // =========================================================
+  // MAIN ADMIN DASHBOARD
+  // =========================================================
 
   return (
-    <div className="admin-dashboard-page">
+    <div className="admin-dashboard">
 
-      {/* =================================================
+      {/* =====================================================
           HEADER
-      ================================================= */}
+      ===================================================== */}
 
-      <div className="admin-dashboard-header">
+      <header className="admin-dashboard-header">
 
-        <div>
-          <span className="admin-eyebrow">
-            CIVICFIX AI
-          </span>
+        <div className="admin-brand-section">
 
-          <h1>
-            Admin Dashboard
-          </h1>
+          <div className="admin-logo">
+            CF
+          </div>
 
-          <p>
-            Monitor citizen complaints,
-            AI intelligence and resolution
-            progress.
-          </p>
+          <div>
+            <span className="admin-eyebrow">
+              CIVICFIX AI
+            </span>
+
+            <h1>
+              Admin Dashboard
+            </h1>
+
+            <p>
+              Civic complaint intelligence,
+              verification and resolution
+              management.
+            </p>
+          </div>
+
         </div>
 
         <button
           type="button"
           className="admin-refresh-btn"
-          onClick={fetchComplaints}
+          onClick={
+            handleRefresh
+          }
           disabled={loading}
         >
-          ↻ Refresh
+          {loading
+            ? "Refreshing..."
+            : "↻ Refresh"}
         </button>
 
-      </div>
+      </header>
 
-      {/* =================================================
+
+      {/* =====================================================
           ERROR
-      ================================================= */}
+      ===================================================== */}
 
       {error && (
-        <div className="admin-status-error">
+        <div className="admin-dashboard-error">
           ⚠️ {error}
         </div>
       )}
 
-      {/* =================================================
-          MAIN STATS
-      ================================================= */}
 
-      <div className="admin-stats-grid">
+      {/* =====================================================
+          QUICK NAVIGATION
+      ===================================================== */}
 
-        <div className="admin-stat-card">
-          <span className="admin-stat-label">
-            Total Complaints
-          </span>
+      <section className="admin-navigation">
 
-          <strong className="admin-stat-number">
-            {totalComplaints}
-          </strong>
-
-          <span className="admin-stat-description">
-            All reported complaints
-          </span>
-        </div>
-
-        <div className="admin-stat-card">
-          <span className="admin-stat-label">
-            Pending
-          </span>
-
-          <strong className="admin-stat-number">
-            {pendingComplaints}
-          </strong>
-
-          <span className="admin-stat-description">
-            Awaiting action
-          </span>
-        </div>
-
-        <div className="admin-stat-card">
-          <span className="admin-stat-label">
-            In Progress
-          </span>
-
-          <strong className="admin-stat-number">
-            {inProgressComplaints}
-          </strong>
-
-          <span className="admin-stat-description">
-            Currently being handled
-          </span>
-        </div>
-
-        <div className="admin-stat-card">
-          <span className="admin-stat-label">
-            Resolved
-          </span>
-
-          <strong className="admin-stat-number">
-            {resolvedComplaints}
-          </strong>
-
-          <span className="admin-stat-description">
-            Successfully resolved
-          </span>
-        </div>
-
-      </div>
-
-      {/* =================================================
-          SECONDARY STATS
-      ================================================= */}
-
-      <div className="admin-secondary-stats">
-
-        <div className="admin-mini-card">
-          <span>
-            Civic Issues
-          </span>
-
-          <strong>
-            {civicComplaints}
-          </strong>
-        </div>
-
-        <div className="admin-mini-card">
-          <span>
-            High / Critical
-          </span>
-
-          <strong>
-            {highPriorityComplaints}
-          </strong>
-        </div>
-
-        <div className="admin-mini-card">
-          <span>
-            Duplicates
-          </span>
-
-          <strong>
-            {duplicateComplaints}
-          </strong>
-        </div>
-
-        <div className="admin-mini-card">
-          <span>
-            Rejected
-          </span>
-
-          <strong>
-            {rejectedComplaints}
-          </strong>
-        </div>
-
-      </div>
-
-      {/* =================================================
-          AI INTELLIGENCE
-      ================================================= */}
-
-      <div className="admin-section">
-
-        <div className="admin-section-header">
+        <button
+          type="button"
+          className="admin-nav-card complaints"
+          onClick={
+            openComplaintsPage
+          }
+        >
+          <div className="admin-nav-icon">
+            📋
+          </div>
 
           <div>
-            <span className="admin-eyebrow">
-              AI INTELLIGENCE
+            <strong>
+              All Complaints
+            </strong>
+
+            <span>
+              Review and manage
+              citizen complaints
+            </span>
+          </div>
+
+          <div className="admin-nav-arrow">
+            →
+          </div>
+        </button>
+
+
+        <button
+          type="button"
+          className="admin-nav-card analytics"
+          onClick={
+            openAnalyticsPage
+          }
+        >
+          <div className="admin-nav-icon">
+            📊
+          </div>
+
+          <div>
+            <strong>
+              Analytics & Intelligence
+            </strong>
+
+            <span>
+              Hotspots, trends and
+              anomaly detection
+            </span>
+          </div>
+
+          <div className="admin-nav-arrow">
+            →
+          </div>
+        </button>
+
+      </section>
+
+
+      {/* =====================================================
+          SUMMARY
+      ===================================================== */}
+
+      <section className="admin-section">
+
+        <div className="admin-section-heading">
+
+          <div>
+            <span>
+              CIVICFIX OVERVIEW
             </span>
 
             <h2>
-              Complaint Intelligence
+              Complaint Overview
             </h2>
-
-            <p>
-              AI-generated insights from reported
-              citizen complaints.
-            </p>
           </div>
+
+          <p>
+            Current state of all
+            reported civic issues.
+          </p>
 
         </div>
 
-        <div className="admin-intelligence-grid">
 
-          {/* Department */}
+        <div className="admin-stat-grid">
 
-          <div className="admin-intelligence-card">
+          {/* TOTAL */}
 
-            <div className="admin-intelligence-card-header">
-              <span>
-                Department Distribution
-              </span>
-            </div>
+          <div className="admin-stat-card">
 
-            {departmentStats.length === 0 ? (
-              <p className="admin-empty-text">
-                No department data available.
-              </p>
-            ) : (
-              <div className="admin-distribution-list">
-
-                {departmentStats.map(
-                  ([department, count]) => (
-                    <div
-                      className="admin-distribution-row"
-                      key={department}
-                    >
-                      <span>
-                        {department}
-                      </span>
-
-                      <strong>
-                        {count}
-                      </strong>
-                    </div>
-                  )
-                )}
-
-              </div>
-            )}
-
-          </div>
-
-          {/* Area */}
-
-          <div className="admin-intelligence-card">
-
-            <div className="admin-intelligence-card-header">
-              <span>
-                Area Distribution
-              </span>
-            </div>
-
-            {areaStats.length === 0 ? (
-              <p className="admin-empty-text">
-                No area data available.
-              </p>
-            ) : (
-              <div className="admin-distribution-list">
-
-                {areaStats.map(
-                  ([area, count]) => (
-                    <div
-                      className="admin-distribution-row"
-                      key={area}
-                    >
-                      <span>
-                        {area}
-                      </span>
-
-                      <strong>
-                        {count}
-                      </strong>
-                    </div>
-                  )
-                )}
-
-              </div>
-            )}
-
-          </div>
-
-          {/* Ward */}
-
-          <div className="admin-intelligence-card">
-
-            <div className="admin-intelligence-card-header">
-              <span>
-                Ward Distribution
-              </span>
-            </div>
-
-            {wardStats.length === 0 ? (
-              <p className="admin-empty-text">
-                No ward data available.
-              </p>
-            ) : (
-              <div className="admin-distribution-list">
-
-                {wardStats.map(
-                  ([ward, count]) => (
-                    <div
-                      className="admin-distribution-row"
-                      key={ward}
-                    >
-                      <span>
-                        {ward}
-                      </span>
-
-                      <strong>
-                        {count}
-                      </strong>
-                    </div>
-                  )
-                )}
-
-              </div>
-            )}
-
-          </div>
-
-        </div>
-
-      </div>
-
-      {/* =================================================
-          RECENT COMPLAINTS
-      ================================================= */}
-
-      <div className="admin-section">
-
-        <div className="admin-section-header">
-
-          <div>
-            <span className="admin-eyebrow">
-              RECENT ACTIVITY
-            </span>
-
-            <h2>
-              Recent Complaints
-            </h2>
-
-            <p>
-              Showing the latest 4 complaints.
-            </p>
-          </div>
-
-          {/* IMPORTANT:
-              View All is ONLY for opening
-              the complete complaints page.
-          */}
-
-          <button
-            type="button"
-            className="admin-view-all-btn"
-            onClick={() =>
-              setShowAllComplaints(true)
-            }
-          >
-            View All Complaints →
-          </button>
-
-        </div>
-
-        {/* =================================================
-            LOADING
-        ================================================= */}
-
-        {loading ? (
-
-          <div className="admin-dashboard-empty">
-
-            <div className="admin-empty-icon">
-              ⏳
-            </div>
-
-            <h3>
-              Loading complaints...
-            </h3>
-
-            <p>
-              Fetching latest complaints
-              from server.
-            </p>
-
-          </div>
-
-        ) : recentComplaints.length === 0 ? (
-
-          <div className="admin-dashboard-empty">
-
-            <div className="admin-empty-icon">
+            <div className="admin-stat-icon blue">
               📋
             </div>
 
-            <h3>
-              No complaints found
-            </h3>
+            <div>
+              <span>
+                Total Complaints
+              </span>
 
-            <p>
-              There are currently no
-              reported complaints.
-            </p>
-
-          </div>
-
-        ) : (
-
-          <div className="admin-recent-complaints">
-
-            {recentComplaints.map(
-              (complaint) => (
-
-                <div
-                  className="admin-recent-card"
-                  key={complaint._id}
-                >
-
-                  {/* TOP */}
-
-                  <div className="admin-recent-card-top">
-
-                    <div>
-
-                      <h3>
-                        {complaint.title}
-                      </h3>
-
-                      <p>
-                        {complaint.aiClassification
-                          ?.area ||
-                          complaint.category ||
-                          "Other"}
-
-                        {" • "}
-
-                        {complaint.aiClassification
-                          ?.subcategory ||
-                          "Other"}
-                      </p>
-
-                    </div>
-
-                    <span
-                      className={`admin-status ${getStatusClass(
-                        complaint.status
-                      )}`}
-                    >
-                      {complaint.status}
-                    </span>
-
-                  </div>
-
-                  {/* DESCRIPTION */}
-
-                  <p className="admin-recent-description">
-                    {complaint.description}
-                  </p>
-
-                  {/* INFO */}
-
-                  <div className="admin-recent-info">
-
-                    <div>
-                      <span>
-                        Department
-                      </span>
-
-                      <strong>
-                        {complaint
-                          .aiClassification
-                          ?.department ||
-                          "Unassigned"}
-                      </strong>
-                    </div>
-
-                    <div>
-                      <span>
-                        Priority
-                      </span>
-
-                      <strong>
-                        {complaint.priority ||
-                          "Not calculated"}
-                      </strong>
-                    </div>
-
-                    <div>
-                      <span>
-                        Reported By
-                      </span>
-
-                      <strong>
-                        {complaint.userId
-                          ?.name ||
-                          "Unknown"}
-                      </strong>
-                    </div>
-
-                    <div>
-                      <span>
-                        Date
-                      </span>
-
-                      <strong>
-                        {formatDate(
-                          complaint.createdAt
-                        )}
-                      </strong>
-                    </div>
-
-                  </div>
-
-                  {/* FOOTER */}
-
-                  <div className="admin-recent-footer">
-
-                    <span>
-                      {complaint.location
-                        ?.address ||
-                        "Location unavailable"}
-                    </span>
-
-                  </div>
-
-                </div>
-
-              )
-            )}
+              <strong>
+                {totalComplaints}
+              </strong>
+            </div>
 
           </div>
 
-        )}
 
-        {/* =================================================
-            VIEW ALL BUTTON
-        ================================================= */}
+          {/* OPEN */}
 
-        {complaints.length > 4 && (
-          <div className="admin-view-all-bottom">
+          <div className="admin-stat-card">
 
-            <button
-              type="button"
-              className="admin-view-all-btn"
-              onClick={() =>
-                setShowAllComplaints(true)
-              }
-            >
-              View All {complaints.length} Complaints →
-            </button>
+            <div className="admin-stat-icon orange">
+              🔄
+            </div>
+
+            <div>
+              <span>
+                Open Complaints
+              </span>
+
+              <strong>
+                {openComplaints}
+              </strong>
+            </div>
 
           </div>
-        )}
 
-      </div>
+
+          {/* UNDER REVIEW */}
+
+          <div className="admin-stat-card">
+
+            <div className="admin-stat-icon purple">
+              🔎
+            </div>
+
+            <div>
+              <span>
+                Under Review
+              </span>
+
+              <strong>
+                {underReviewComplaints}
+              </strong>
+            </div>
+
+          </div>
+
+
+          {/* VERIFIED */}
+
+          <div className="admin-stat-card">
+
+            <div className="admin-stat-icon teal">
+              ✓
+            </div>
+
+            <div>
+              <span>
+                Verified
+              </span>
+
+              <strong>
+                {verifiedComplaints}
+              </strong>
+            </div>
+
+          </div>
+
+
+          {/* FORWARDED */}
+
+          <div className="admin-stat-card">
+
+            <div className="admin-stat-icon indigo">
+              📤
+            </div>
+
+            <div>
+              <span>
+                Forwarded
+              </span>
+
+              <strong>
+                {forwardedComplaints}
+              </strong>
+            </div>
+
+          </div>
+
+
+          {/* RESOLVED */}
+
+          <div className="admin-stat-card">
+
+            <div className="admin-stat-icon green">
+              ✓
+            </div>
+
+            <div>
+              <span>
+                Resolved
+              </span>
+
+              <strong>
+                {resolvedComplaints}
+              </strong>
+            </div>
+
+          </div>
+
+
+          {/* REOPENED */}
+
+          <div className="admin-stat-card">
+
+            <div className="admin-stat-icon red">
+              ↩
+            </div>
+
+            <div>
+              <span>
+                Reopened
+              </span>
+
+              <strong>
+                {reopenedComplaints}
+              </strong>
+            </div>
+
+          </div>
+
+
+          {/* CITIZEN CONFIRMED */}
+
+          <div className="admin-stat-card">
+
+            <div className="admin-stat-icon emerald">
+              👍
+            </div>
+
+            <div>
+              <span>
+                Citizen Confirmed
+              </span>
+
+              <strong>
+                {citizenConfirmed}
+              </strong>
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      {/* =====================================================
+          WORKFLOW
+      ===================================================== */}
+
+      <section className="admin-section">
+
+        <div className="admin-section-heading">
+
+          <div>
+            <span>
+              WORKFLOW
+            </span>
+
+            <h2>
+              Complaint Lifecycle
+            </h2>
+          </div>
+
+          <p>
+            CivicFix separates platform
+            verification from government
+            operational work.
+          </p>
+
+        </div>
+
+
+        <div className="admin-workflow">
+
+          <div className="workflow-step">
+            <span>1</span>
+            <strong>Reported</strong>
+            <small>
+              Citizen submits issue
+            </small>
+          </div>
+
+          <div className="workflow-line" />
+
+          <div className="workflow-step">
+            <span>2</span>
+            <strong>Under Review</strong>
+            <small>
+              Admin reviews report
+            </small>
+          </div>
+
+          <div className="workflow-line" />
+
+          <div className="workflow-step">
+            <span>3</span>
+            <strong>Verified</strong>
+            <small>
+              Complaint verified
+            </small>
+          </div>
+
+          <div className="workflow-line" />
+
+          <div className="workflow-step">
+            <span>4</span>
+            <strong>Forwarded</strong>
+            <small>
+              Sent to government workflow
+            </small>
+          </div>
+
+          <div className="workflow-line" />
+
+          <div className="workflow-step">
+            <span>5</span>
+            <strong>Resolved</strong>
+            <small>
+              Resolution approved
+            </small>
+          </div>
+
+        </div>
+
+      </section>
+
+
+      {/* =====================================================
+          SPECIAL ATTENTION
+      ===================================================== */}
+
+      <section className="admin-section">
+
+        <div className="admin-section-heading">
+
+          <div>
+            <span>
+              ATTENTION REQUIRED
+            </span>
+
+            <h2>
+              Cases Requiring Attention
+            </h2>
+          </div>
+
+          <p>
+            Quickly identify complaints
+            that need administrative action.
+          </p>
+
+        </div>
+
+
+        <div className="admin-attention-grid">
+
+          <div className="attention-card">
+
+            <div className="attention-icon">
+              ↩
+            </div>
+
+            <div>
+              <strong>
+                Reopened Complaints
+              </strong>
+
+              <span>
+                Citizens reported that
+                a previous resolution
+                did not solve the issue.
+              </span>
+            </div>
+
+            <b>
+              {reopenedComplaints}
+            </b>
+
+          </div>
+
+
+          <div className="attention-card">
+
+            <div className="attention-icon">
+              ⏳
+            </div>
+
+            <div>
+              <strong>
+                Under Review
+              </strong>
+
+              <span>
+                Complaints waiting for
+                administrative verification.
+              </span>
+            </div>
+
+            <b>
+              {underReviewComplaints}
+            </b>
+
+          </div>
+
+
+          <div className="attention-card">
+
+            <div className="attention-icon">
+              ⚠️
+            </div>
+
+            <div>
+              <strong>
+                Rejected
+              </strong>
+
+              <span>
+                Complaints that were
+                rejected during review.
+              </span>
+            </div>
+
+            <b>
+              {rejectedComplaints}
+            </b>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      {/* =====================================================
+          AI INTELLIGENCE
+      ===================================================== */}
+
+      <section className="admin-ai-banner">
+
+        <div className="admin-ai-icon">
+          ✦
+        </div>
+
+        <div>
+
+          <span>
+            AI CIVIC INTELLIGENCE
+          </span>
+
+          <h2>
+            Understand what is
+            happening across the city
+          </h2>
+
+          <p>
+            Use AI-assisted classification,
+            severity, priority, duplicate
+            detection, hotspots and
+            emerging-issue analytics to
+            support administrative review.
+          </p>
+
+        </div>
+
+        <button
+          type="button"
+          onClick={
+            openAnalyticsPage
+          }
+        >
+          Open Analytics →
+        </button>
+
+      </section>
+
+
+      {/* =====================================================
+          FOOTER INFO
+      ===================================================== */}
+
+      <footer className="admin-dashboard-footer">
+
+        <span>
+          CivicFix AI
+        </span>
+
+        <p>
+          AI-powered civic complaint
+          management and intelligence
+          platform.
+        </p>
+
+      </footer>
 
     </div>
   );
