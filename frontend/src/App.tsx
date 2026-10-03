@@ -5,17 +5,15 @@ import Register from "./components/auth/register";
 import Login from "./components/auth/login";
 import ComplaintForm from "./components/ComplaintForm";
 import AdminDashboard from "./components/admin/AdminDashboard";
-import GovernmentDashboard from "./components/government/governmentDashboard"
+import GovernmentDashboard from "./components/government/GovernmentDashboard";
+import NotificationBell from "./components/notifications/NotificationBell";
+import "./components/layout/CivicHeader.css";
 
 function App() {
-  const [authMode, setAuthMode] = useState<"register" | "login">(
-    "register"
-  );
-
+  const [authMode, setAuthMode] = useState<"register" | "login">("register");
   const [isAuthenticated, setIsAuthenticated] = useState(
     !!localStorage.getItem("token")
   );
-
   const [userRole, setUserRole] = useState<string | null>(
     localStorage.getItem("role")
   );
@@ -44,40 +42,33 @@ function App() {
   if (isAuthenticated) {
     return (
       <div className="app">
-
         <div className="app-header">
-
           <h1>CivicFix AI</h1>
 
-          <button
-            type="button"
-            className="logout-btn"
-            onClick={handleLogout}
-          >
-            Logout
-          </button>
+          <div className="civicfix-header-actions">
+            <span className="civicfix-role-pill">
+              {userRole || "citizen"}
+            </span>
 
+            <NotificationBell />
+
+            <button
+              type="button"
+              className="logout-btn civicfix-logout-btn"
+              onClick={handleLogout}
+            >
+              Logout
+            </button>
+          </div>
         </div>
-
-        {/* ADMIN */}
 
         {userRole === "admin" ? (
           <AdminDashboard />
-
         ) : userRole === "government" ? (
-
-          /* GOVERNMENT */
-
           <GovernmentDashboard />
-
         ) : (
-
-          /* CITIZEN */
-
           <ComplaintForm />
-
         )}
-
       </div>
     );
   }

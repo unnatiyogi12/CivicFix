@@ -1,0 +1,53 @@
+.civicfix-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.civicfix-role-pill {
+  min-height: 38px;
+  padding: 0 12px;
+  border-radius: 12px;
+  background: #f4f3ff;
+  border: 1px solid #e3e1ff;
+  color: #4f46e5;
+  display: inline-flex;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: capitalize;
+}
+
+.civicfix-logout-btn {
+  min-height: 42px;
+  padding: 0 15px;
+  border: 1px solid #e3e7f0;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #172033;
+  font-weight: 800;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.civicfix-logout-btn:hover {
+  border-color: #c9ccda;
+  transform: translateY(-1px);
+  box-shadow: 0 7px 18px rgba(15, 23, 42, 0.07);
+}
+
+@media (max-width: 700px) {
+  .civicfix-role-pill {
+    display: none;
+  }
+
+  .civicfix-header-actions {
+    gap: 7px;
+  }
+
+  .civicfix-logout-btn {
+    min-height: 38px;
+    padding: 0 11px;
+    font-size: 12px;
+  }
+}
