@@ -50,6 +50,11 @@ import governmentMiddleware from "../middlewares/governmentMiddleware.js";
 
 const router = express.Router();
 
+const ML_API_URL = (
+    process.env.ML_API_URL ||
+    "https://civicfix-ml.onrender.com"
+).replace(/\/+$/, "");
+
 
 const getCivicFixStatus = (complaint) => {
 
@@ -142,11 +147,6 @@ router.post(
 
 
             try {
-
-
-
-                const ML_API_URL =
-                    "https://civicfix-backend-ce2z.onrender.com";
 
 
 
@@ -290,10 +290,28 @@ router.post(
                     );
                 }
 
+                if (
+                    !mlData ||
+                    typeof mlData !== "object" ||
+                    Array.isArray(mlData)
+                ) {
+                    throw new Error(
+                        "ML API returned an unexpected response shape"
+                    );
+                }
+
                 console.log(
                     "✅ ML Parsed Response:",
                     mlData
                 );
+
+                if (mlData.success === false) {
+                    throw new Error(
+                        mlData.message ||
+                        mlData.error ||
+                        "ML API reported that classification failed"
+                    );
+                }
 
                 const readML = (
                     camelCaseKey,
@@ -301,48 +319,54 @@ router.post(
                     fallback = ""
                 ) => {
 
-                    if (
+                    const value =
+                        mlData[camelCaseKey] ??
+                        (snakeCaseKey
+                            ? mlData[snakeCaseKey]
+                            : undefined);
 
-                        mlData[
-                            camelCaseKey
-                        ] !== undefined &&
-
-                        mlData[
-                            camelCaseKey
-                        ] !== null
-
-                    ) {
-
-
-
-                        return mlData[
-                            camelCaseKey
-                        ];
-                    }
-
-                    if (
-
-                        snakeCaseKey &&
-
-                        mlData[
-                            snakeCaseKey
-                        ] !== undefined &&
-
-                        mlData[
-                            snakeCaseKey
-                        ] !== null
-
-                    ) {
-
-                        return mlData[
-                            snakeCaseKey
-                        ];
-
-
-                    }
-
-                    return fallback;
+                    return value ?? fallback;
                 };
+
+                const readMLString = (
+                    camelCaseKey,
+                    snakeCaseKey,
+                    fallback = ""
+                ) => {
+                    const value =
+                        readML(
+                            camelCaseKey,
+                            snakeCaseKey,
+                            fallback
+                        );
+
+                    return typeof value === "string"
+                        ? value.trim()
+                        : fallback;
+                };
+
+                const civicValue =
+                    readML(
+                        "isCivic",
+                        "is_civic",
+                        null
+                    );
+
+                const normalizedCivicValue =
+                    typeof civicValue === "boolean"
+                        ? civicValue
+                        : typeof civicValue === "number" &&
+                            (civicValue === 0 || civicValue === 1)
+                        ? civicValue === 1
+                        : typeof civicValue === "string" &&
+                            ["true", "false", "1", "0"].includes(
+                                civicValue.trim().toLowerCase()
+                            )
+                        ? ["true", "1"].includes(
+                            civicValue.trim().toLowerCase()
+                        )
+                        : null;
+
                 const priorityScoreValue =
                     Number(
 
@@ -361,15 +385,11 @@ router.post(
 
 
                     isCivic:
-                        readML(
-                            "isCivic",
-                            "is_civic",
-                            null
-                        ),
+                        normalizedCivicValue,
 
 
                     area:
-                        readML(
+                        readMLString(
                             "area",
                             null,
                             ""
@@ -378,7 +398,7 @@ router.post(
 
 
                     subcategory:
-                        readML(
+                        readMLString(
                             "subcategory",
                             "sub_category",
                             ""
@@ -387,7 +407,7 @@ router.post(
 
 
                     subcategorySource:
-                        readML(
+                        readMLString(
                             "subcategorySource",
                             "sub_category_source",
                             "ml_model"
@@ -396,7 +416,7 @@ router.post(
 
 
                     severity:
-                        readML(
+                        readMLString(
                             "severity",
                             null,
                             ""
@@ -405,7 +425,7 @@ router.post(
 
 
                     department:
-                        readML(
+                        readMLString(
                             "department",
                             null,
                             ""
@@ -423,7 +443,7 @@ router.post(
 
 
                     priority:
-                        readML(
+                        readMLString(
                             "priority",
                             null,
                             ""
@@ -432,7 +452,7 @@ router.post(
 
 
                     recommendedAction:
-                        readML(
+                        readMLString(
                             "recommendedAction",
                             "recommended_action",
                             ""
@@ -486,6 +506,9 @@ router.post(
                 };
 
             }
+
+            const aiClassificationAvailable =
+                aiClassification.isCivic !== null;
 
             let duplicateDetection = {
 
@@ -547,7 +570,7 @@ router.post(
 
                     const duplicateResponse =
                         await fetch(
-                            "https://civicfix-ml.onrender.com/duplicate-check",
+                            `${ML_API_URL}/duplicate-check`,
                             {
 
                                 method: "POST",
@@ -964,8 +987,7 @@ router.post(
 
 
                     recommendedAction:
-                        aiClassification.recommendedAction ||
-                        " ",
+                        aiClassification.recommendedAction,
 
 
 
@@ -1197,6 +1219,8 @@ router.post(
                 complaint,
 
                 aiClassification,
+
+                aiClassificationAvailable,
 
                 duplicateDetection,
 
