@@ -171,25 +171,12 @@ router.post(
             };
 
 
-
-
-
-
-
-            // =================================================
-
-            // AI CLASSIFICATION - PRODUCTION ML API
-
-            // =================================================
-
-
-
             try {
 
 
 
                 const ML_API_URL =
-                    "https://civicfix-ml.onrender.com";
+                    "https://civicfix-backend-ce2z.onrender.com";
 
 
 
@@ -507,54 +494,30 @@ router.post(
 
                 aiClassification = {
 
-
-
                     isCivic: null,
-
-
 
                     area: "",
 
-
-
                     subcategory: "",
 
-
-
                     subcategorySource:
-                        "ml_failed",
-
-
+                        "",
 
                     severity: "",
 
-
-
                     department: "",
-
-
 
                     priorityScore: 0,
 
-
-
                     priority: "",
-
-
 
                     recommendedAction: ""
 
-
-
                 };
-
-
 
             }
 
             let duplicateDetection = {
-
-
 
                 isDuplicate: false,
 
