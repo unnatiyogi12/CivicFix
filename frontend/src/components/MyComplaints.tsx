@@ -77,7 +77,7 @@ function MyComplaints() {
       }
 
       const response = await fetch(
-        "http://localhost:5000/api/complaints/my",
+        "https://civicfix-yrdw.onrender.com/api/complaints/my",
         {
           method: "GET",
           headers: {

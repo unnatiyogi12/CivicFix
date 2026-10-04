@@ -201,7 +201,7 @@ function AdminComplaints({
       }
 
       const response = await fetch(
-        "http://localhost:5000/api/complaints/admin/all",
+        "https://civicfix-yrdw.onrender.com",
         {
           method: "GET",
           headers: {
