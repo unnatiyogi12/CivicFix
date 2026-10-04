@@ -531,6 +531,9 @@ function findBhopalWard(
 // ======================================================
 // FIND GWALIOR WARD
 // ======================================================
+// ======================================================
+// FIND GWALIOR WARD
+// ======================================================
 
 function findGwaliorWard(
     latitude,
@@ -543,12 +546,97 @@ function findGwaliorWard(
             "Gwalior ward"
         );
 
-    return findWardInGeoJSON(
-        data,
-        latitude,
-        longitude,
-        "Gwalior"
+    // ==================================================
+    // GWALIOR WARD DEBUG
+    // ==================================================
+
+    console.log("\n=================================");
+    console.log("🔍 GWALIOR WARD DEBUG");
+
+    console.log(
+        "Ward file:",
+        GWALIOR_WARD_FILE_PATH
     );
+
+    console.log(
+        "File exists:",
+        fs.existsSync(GWALIOR_WARD_FILE_PATH)
+    );
+
+    console.log(
+        "Data loaded:",
+        !!data
+    );
+
+    console.log(
+        "Feature count:",
+        data?.features?.length || 0
+    );
+
+    console.log(
+        "Coordinates:",
+        latitude,
+        longitude
+    );
+
+    // Show first feature properties
+    // This will help us know the actual property names
+    if (
+        data &&
+        Array.isArray(data.features) &&
+        data.features.length > 0
+    ) {
+
+        console.log(
+            "First feature properties:",
+            data.features[0]?.properties || {}
+        );
+    }
+
+    // ==================================================
+    // FIND WARD
+    // ==================================================
+
+    const result =
+        findWardInGeoJSON(
+            data,
+            latitude,
+            longitude,
+            "Gwalior"
+        );
+
+    // ==================================================
+    // MATCH RESULT
+    // ==================================================
+
+    console.log(
+        "Matched ward:",
+        result?.ward || "NOT FOUND"
+    );
+
+    console.log(
+        "Matched ward code:",
+        result?.wardCode || "NOT FOUND"
+    );
+
+    console.log(
+        "Matched municipality:",
+        result?.municipality || "NOT FOUND"
+    );
+
+    console.log(
+        "Matched district:",
+        result?.district || "NOT FOUND"
+    );
+
+    console.log(
+        "Matched state:",
+        result?.state || "NOT FOUND"
+    );
+
+    console.log("=================================\n");
+
+    return result;
 }
 
 
