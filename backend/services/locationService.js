@@ -1,43 +1,119 @@
 import axios from "axios";
+
 import fs from "fs";
+
 import path from "path";
+
 import { fileURLToPath } from "url";
 
 import booleanPointInPolygon from "@turf/boolean-point-in-polygon";
+
 import { point } from "@turf/helpers";
 
+
 const __filename = fileURLToPath(import.meta.url);
+
 const __dirname = path.dirname(__filename);
 
 
 // ======================================================
 // FILE PATHS
+// Resolve the existing project-level data/wards folder
+// without moving it.
 // ======================================================
 
-// Gwalior
-const GWALIOR_WARD_FILE_PATH = path.resolve(
-    __dirname,
-    "../../data/wards/gwalior.geojson"
-);
+function resolveWardDataFile(candidates) {
 
-// Bhopal
-const BHOPAL_WARD_FILE_PATH = path.resolve(
-    __dirname,
-    "../../data/wards/bhopal.geojson"
-);
+    const names =
+        Array.isArray(candidates)
+            ? candidates
+            : [candidates];
 
-// NEW:
-// Common city-wise Ward → Zone mapping
-const CITY_WARD_ZONE_MAPPING_PATH = path.resolve(
-    __dirname,
-    "../../data/wards/city_ward_zone_mapping.json"
-);
+    const possiblePaths = [];
 
-// Old Gwalior mapping kept as fallback
-const OLD_GWALIOR_MAPPING_PATH = path.resolve(
-    __dirname,
-    "../../data/wards/ward_zone_mapping.json"
-);
+    for (const name of names) {
+
+        possiblePaths.push(
+            path.resolve(
+                __dirname,
+                "../../data/wards",
+                name
+            )
+        );
+
+        possiblePaths.push(
+            path.resolve(
+                process.cwd(),
+                "../data/wards",
+                name
+            )
+        );
+
+        possiblePaths.push(
+            path.resolve(
+                process.cwd(),
+                "data/wards",
+                name
+            )
+        );
+
+    }
+
+    for (const filePath of possiblePaths) {
+
+        if (fs.existsSync(filePath)) {
+
+            console.log(
+                `✅ Location data found: ${filePath}`
+            );
+
+            return filePath;
+
+        }
+
+    }
+
+    console.log(
+        "❌ Location data not found:",
+        candidates
+    );
+
+    console.log(
+        "Checked paths:",
+        possiblePaths
+    );
+
+    return possiblePaths[0];
+
+}
+
+
+const GWALIOR_WARD_FILE_PATH =
+    resolveWardDataFile([
+        "gwalior.geojson",
+        "Gwalior_Wards.geojson",
+        "Gwalior_Wards.json"
+    ]);
+
+
+const BHOPAL_WARD_FILE_PATH =
+    resolveWardDataFile([
+        "bhopal.geojson",
+        "Bhopal_Wards.geojson",
+        "Bhopal_Wards.json"
+    ]);
+
+
+const CITY_WARD_ZONE_MAPPING_PATH =
+    resolveWardDataFile([
+        "city_ward_zone_mapping.json"
+    ]);
+
+
+const OLD_GWALIOR_MAPPING_PATH =
+    resolveWardDataFile([
+        "ward_zone_mapping.json"
+    ]);
 
 
 // ======================================================
@@ -50,7 +126,9 @@ export function validateCoordinates(
 ) {
 
     const lat = Number(latitude);
+
     const lng = Number(longitude);
+
 
     if (
         !Number.isFinite(lat) ||
@@ -62,7 +140,9 @@ export function validateCoordinates(
             valid: false,
             message: "Invalid latitude."
         };
+
     }
+
 
     if (
         !Number.isFinite(lng) ||
@@ -74,13 +154,16 @@ export function validateCoordinates(
             valid: false,
             message: "Invalid longitude."
         };
+
     }
+
 
     return {
         valid: true,
         latitude: lat,
         longitude: lng
     };
+
 }
 
 
@@ -103,7 +186,9 @@ function loadGeoJSON(
             );
 
             return null;
+
         }
+
 
         const fileContent =
             fs.readFileSync(
@@ -111,7 +196,11 @@ function loadGeoJSON(
                 "utf-8"
             );
 
-        return JSON.parse(fileContent);
+
+        return JSON.parse(
+            fileContent
+        );
+
 
     } catch (error) {
 
@@ -121,7 +210,9 @@ function loadGeoJSON(
         );
 
         return null;
+
     }
+
 }
 
 
@@ -145,7 +236,9 @@ function loadCityWardZoneMapping() {
             );
 
             return {};
+
         }
+
 
         const fileContent =
             fs.readFileSync(
@@ -153,9 +246,11 @@ function loadCityWardZoneMapping() {
                 "utf-8"
             );
 
+
         return JSON.parse(
             fileContent
         );
+
 
     } catch (error) {
 
@@ -165,16 +260,14 @@ function loadCityWardZoneMapping() {
         );
 
         return {};
+
     }
+
 }
 
 
 // ======================================================
 // LOAD OLD GWALIOR MAPPING
-// ======================================================
-//
-// This is only a fallback so existing Gwalior
-// functionality does not suddenly break.
 // ======================================================
 
 function loadOldGwaliorMapping() {
@@ -188,7 +281,9 @@ function loadOldGwaliorMapping() {
         ) {
 
             return {};
+
         }
+
 
         const fileContent =
             fs.readFileSync(
@@ -196,9 +291,11 @@ function loadOldGwaliorMapping() {
                 "utf-8"
             );
 
+
         return JSON.parse(
             fileContent
         );
+
 
     } catch (error) {
 
@@ -208,7 +305,9 @@ function loadOldGwaliorMapping() {
         );
 
         return {};
+
     }
+
 }
 
 
@@ -224,14 +323,14 @@ function findZoneFromCityWard(
     const normalizedCity =
         String(
             city || ""
-        )
-            .trim();
+        ).trim();
+
 
     const normalizedWardCode =
         String(
             wardCode || ""
-        )
-            .trim();
+        ).trim();
+
 
     if (
         !normalizedCity ||
@@ -239,6 +338,7 @@ function findZoneFromCityWard(
     ) {
 
         return null;
+
     }
 
 
@@ -248,6 +348,7 @@ function findZoneFromCityWard(
 
     const cityMapping =
         loadCityWardZoneMapping();
+
 
     const cityWardMapping =
         cityMapping[
@@ -268,6 +369,7 @@ function findZoneFromCityWard(
                 normalizedWardCode
             ];
 
+
         if (
             zone !== null &&
             zone !== undefined &&
@@ -275,7 +377,9 @@ function findZoneFromCityWard(
         ) {
 
             return String(zone).trim();
+
         }
+
     }
 
 
@@ -291,10 +395,12 @@ function findZoneFromCityWard(
         const oldMapping =
             loadOldGwaliorMapping();
 
+
         const zone =
             oldMapping[
                 normalizedWardCode
             ];
+
 
         if (
             zone !== null &&
@@ -303,11 +409,14 @@ function findZoneFromCityWard(
         ) {
 
             return String(zone).trim();
+
         }
+
     }
 
 
     return null;
+
 }
 
 
@@ -330,6 +439,7 @@ function findWardInGeoJSON(
     ) {
 
         return null;
+
     }
 
 
@@ -352,8 +462,11 @@ function findWardInGeoJSON(
                     feature
                 );
 
+
             if (!isInside) {
+
                 continue;
+
             }
 
 
@@ -371,6 +484,7 @@ function findWardInGeoJSON(
 
                 const wardCode =
                     String(
+
                         properties.Ward_Number ??
                         properties.ward_number ??
                         properties.wardno ??
@@ -378,22 +492,27 @@ function findWardInGeoJSON(
                         properties.wardcode ??
                         properties.WARD_NO ??
                         ""
+
                     ).trim();
 
 
                 const wardName =
                     String(
+
                         properties.Name ??
                         properties.name ??
                         properties.Ward_Name ??
                         properties.wardname ??
                         properties.ward_name ??
                         ""
+
                     ).trim();
 
 
                 if (!wardCode) {
+
                     continue;
+
                 }
 
 
@@ -419,7 +538,9 @@ function findWardInGeoJSON(
 
                     source:
                         "Bhopal_Wards"
+
                 };
+
             }
 
 
@@ -433,30 +554,57 @@ function findWardInGeoJSON(
 
                 const ulbName =
                     String(
-                        properties.ulbname || ""
+
+                        properties.ulbname ??
+                        properties.ULBNAME ??
+                        properties.ulb_name ??
+                        ""
+
                     )
                         .trim()
                         .toLowerCase();
 
 
-                // Only Gwalior Municipal Corporation
+                // If dataset contains ULB field,
+                // it must be Gwalior.
+                // If field is absent, do not reject
+                // because this is already Gwalior dataset.
+
                 if (
+                    ulbName &&
                     ulbName !== "gwalior"
                 ) {
 
                     continue;
+
                 }
 
 
                 const wardName =
-                    properties.wardname ||
-                    "";
+                    String(
+
+                        properties.wardname ??
+                        properties.ward_name ??
+                        properties.Ward_Name ??
+                        properties.name ??
+                        properties.Name ??
+                        properties.ward ??
+                        ""
+
+                    ).trim();
 
 
                 const wardCode =
                     String(
-                        properties.wardcode ||
+
+                        properties.wardcode ??
+                        properties.ward_code ??
+                        properties.wardno ??
+                        properties.ward_no ??
+                        properties.WARD_NO ??
+                        properties.ward ??
                         ""
+
                     ).trim();
 
 
@@ -486,7 +634,9 @@ function findWardInGeoJSON(
 
                     source:
                         "Gwalior_Wards"
+
                 };
+
             }
 
 
@@ -496,11 +646,14 @@ function findWardInGeoJSON(
                 `⚠️ ${city} ward polygon check failed:`,
                 error.message
             );
+
         }
+
     }
 
 
     return null;
+
 }
 
 
@@ -519,18 +672,17 @@ function findBhopalWard(
             "Bhopal ward"
         );
 
+
     return findWardInGeoJSON(
         data,
         latitude,
         longitude,
         "Bhopal"
     );
+
 }
 
 
-// ======================================================
-// FIND GWALIOR WARD
-// ======================================================
 // ======================================================
 // FIND GWALIOR WARD
 // ======================================================
@@ -546,12 +698,18 @@ function findGwaliorWard(
             "Gwalior ward"
         );
 
+
     // ==================================================
     // GWALIOR WARD DEBUG
     // ==================================================
 
-    console.log("\n=================================");
-    console.log("🔍 GWALIOR WARD DEBUG");
+    console.log(
+        "\n================================="
+    );
+
+    console.log(
+        "🔍 GWALIOR WARD DEBUG"
+    );
 
     console.log(
         "Ward file:",
@@ -560,7 +718,9 @@ function findGwaliorWard(
 
     console.log(
         "File exists:",
-        fs.existsSync(GWALIOR_WARD_FILE_PATH)
+        fs.existsSync(
+            GWALIOR_WARD_FILE_PATH
+        )
     );
 
     console.log(
@@ -579,11 +739,12 @@ function findGwaliorWard(
         longitude
     );
 
-    // Show first feature properties
-    // This will help us know the actual property names
+
     if (
         data &&
-        Array.isArray(data.features) &&
+        Array.isArray(
+            data.features
+        ) &&
         data.features.length > 0
     ) {
 
@@ -591,11 +752,16 @@ function findGwaliorWard(
             "First feature properties:",
             data.features[0]?.properties || {}
         );
+
+        console.log(
+            "First feature property keys:",
+            Object.keys(
+                data.features[0]?.properties || {}
+            )
+        );
+
     }
 
-    // ==================================================
-    // FIND WARD
-    // ==================================================
 
     const result =
         findWardInGeoJSON(
@@ -605,38 +771,44 @@ function findGwaliorWard(
             "Gwalior"
         );
 
-    // ==================================================
-    // MATCH RESULT
-    // ==================================================
 
     console.log(
         "Matched ward:",
-        result?.ward || "NOT FOUND"
+        result?.ward ||
+        "NOT FOUND"
     );
 
     console.log(
         "Matched ward code:",
-        result?.wardCode || "NOT FOUND"
+        result?.wardCode ||
+        "NOT FOUND"
     );
 
     console.log(
         "Matched municipality:",
-        result?.municipality || "NOT FOUND"
+        result?.municipality ||
+        "NOT FOUND"
     );
 
     console.log(
         "Matched district:",
-        result?.district || "NOT FOUND"
+        result?.district ||
+        "NOT FOUND"
     );
 
     console.log(
         "Matched state:",
-        result?.state || "NOT FOUND"
+        result?.state ||
+        "NOT FOUND"
     );
 
-    console.log("=================================\n");
+    console.log(
+        "=================================\n"
+    );
+
 
     return result;
+
 }
 
 
@@ -655,6 +827,7 @@ async function reverseGeocode(
             await axios.get(
                 "https://nominatim.openstreetmap.org/reverse",
                 {
+
                     params: {
 
                         lat:
@@ -668,16 +841,19 @@ async function reverseGeocode(
 
                         addressdetails:
                             1
+
                     },
 
                     headers: {
 
                         "User-Agent":
                             "CivicFixAI/1.0"
+
                     },
 
                     timeout:
                         10000
+
                 }
             );
 
@@ -687,7 +863,7 @@ async function reverseGeocode(
 
 
         const address =
-            data.address || {};
+            data?.address || {};
 
 
         return {
@@ -700,12 +876,15 @@ async function reverseGeocode(
                 address.city ||
                 address.town ||
                 address.city_district ||
+                address.municipality ||
+                address.suburb ||
                 address.village ||
                 "",
 
             district:
                 address.state_district ||
                 address.district ||
+                address.county ||
                 "",
 
             state:
@@ -719,7 +898,9 @@ async function reverseGeocode(
             postcode:
                 address.postcode ||
                 ""
+
         };
+
 
     } catch (error) {
 
@@ -729,7 +910,9 @@ async function reverseGeocode(
         );
 
         return null;
+
     }
+
 }
 
 
@@ -744,31 +927,44 @@ function detectCity(
 
     const combinedText =
         [
+
             geoData?.city || "",
+
             geoData?.district || "",
+
             address || ""
+
         ]
+
             .join(" ")
+
             .toLowerCase();
 
 
     if (
-        combinedText.includes("bhopal")
+        combinedText.includes(
+            "bhopal"
+        )
     ) {
 
         return "Bhopal";
+
     }
 
 
     if (
-        combinedText.includes("gwalior")
+        combinedText.includes(
+            "gwalior"
+        )
     ) {
 
         return "Gwalior";
+
     }
 
 
     return "";
+
 }
 
 
@@ -804,6 +1000,7 @@ export async function getLocationIntelligence({
         throw new Error(
             validation.message
         );
+
     }
 
 
@@ -819,7 +1016,7 @@ export async function getLocationIntelligence({
 
 
     // --------------------------------------------------
-    // 3. Detect city from address/geocoding
+    // 3. Detect city
     // --------------------------------------------------
 
     let detectedCity =
@@ -855,15 +1052,12 @@ export async function getLocationIntelligence({
                 validation.latitude,
                 validation.longitude
             );
+
     }
 
 
     // --------------------------------------------------
     // 5. Spatial fallback
-    // --------------------------------------------------
-    //
-    // If reverse geocoding did not identify the city,
-    // use the ward polygons themselves.
     // --------------------------------------------------
 
     if (!wardData) {
@@ -882,7 +1076,9 @@ export async function getLocationIntelligence({
 
             detectedCity =
                 "Bhopal";
+
         }
+
     }
 
 
@@ -902,7 +1098,9 @@ export async function getLocationIntelligence({
 
             detectedCity =
                 "Gwalior";
+
         }
+
     }
 
 
@@ -923,12 +1121,15 @@ export async function getLocationIntelligence({
 
     const municipality =
         wardData?.municipality ||
+
         (
             detectedCity === "Bhopal"
                 ? "Bhopal Municipal Corporation"
                 : ""
         ) ||
+
         geoData?.city ||
+
         "";
 
 
@@ -938,6 +1139,7 @@ export async function getLocationIntelligence({
 
     const district =
         wardData?.district ||
+
         (
             detectedCity === "Bhopal"
                 ? "Bhopal"
@@ -945,7 +1147,9 @@ export async function getLocationIntelligence({
                     ? "Gwalior"
                     : ""
         ) ||
+
         geoData?.district ||
+
         "";
 
 
@@ -955,7 +1159,9 @@ export async function getLocationIntelligence({
 
     const state =
         wardData?.state ||
+
         geoData?.state ||
+
         "Madhya Pradesh";
 
 
@@ -965,8 +1171,11 @@ export async function getLocationIntelligence({
 
     const jurisdiction =
         wardData?.municipality ||
+
         municipality ||
+
         geoData?.city ||
+
         "";
 
 
@@ -993,6 +1202,7 @@ export async function getLocationIntelligence({
 
         locationSource =
             "Gwalior_Wards + CityWardZoneMapping + OpenStreetMap";
+
     }
 
 
@@ -1118,6 +1328,9 @@ export async function getLocationIntelligence({
 
             source:
                 locationSource
+
         }
+
     };
+
 }
