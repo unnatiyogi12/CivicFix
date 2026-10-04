@@ -129,45 +129,15 @@ router.post(
             }
 
             let aiClassification = {
-
-
-
                 isCivic: null,
-
-
-
                 area: "",
-
-
-
                 subcategory: "",
-
-
-
-                subcategorySource: "ml_model",
-
-
-
+                subcategorySource: "",
                 severity: "",
-
-
-
                 department: "",
-
-
-
                 priorityScore: 0,
-
-
-
                 priority: "",
-
-
-
                 recommendedAction: ""
-
-
-
             };
 
 
@@ -916,6 +886,17 @@ router.post(
                     routingError.message
                 );
             }
+            const priorityValue =
+                typeof aiClassification.priority === "string"
+                    ? aiClassification.priority.trim()
+                    : "";
+
+            const priority =
+                ["Low", "Medium", "High", "Critical"].includes(
+                    priorityValue
+                )
+                    ? priorityValue
+                    : "";
 
             const complaint =
                 await Complaint.create({
@@ -978,10 +959,7 @@ router.post(
                         ),
 
 
-
-                    priority:
-                        aiClassification.priority ||
-                        " ",
+                    priority,
 
 
 
