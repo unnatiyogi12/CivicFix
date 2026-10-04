@@ -1,4 +1,5 @@
 import { useState } from "react";
+
 import "./ComplaintForm.css";
 
 import ImageUpload from "./ImageUpload";
@@ -6,78 +7,6 @@ import GeoLocation from "./GeoLocation";
 import LiveLocation from "./LiveLocation";
 import AddressInput from "./AddressInput";
 import MyComplaints from "./MyComplaints";
-
-// ======================================================
-// AI CLASSIFICATION TYPE
-// ======================================================
-
-interface AIClassification {
-  isCivic: boolean | null;
-  area: string;
-  subcategory: string;
-  subcategorySource: string;
-  severity: string;
-  department: string;
-  priorityScore: number;
-  priority: string;
-  recommendedAction: string;
-}
-
-// ======================================================
-// LOCATION INTELLIGENCE TYPE
-// ======================================================
-
-interface LocationIntelligence {
-  latitude: number | null;
-  longitude: number | null;
-  address: string;
-  ward: string;
-  wardCode: string;
-  zone: string;
-  municipality: string;
-  ulbCode: string;
-  district: string;
-  state: string;
-  jurisdiction: string;
-  source: string;
-}
-
-// ======================================================
-// DUPLICATE DETECTION TYPE
-// ======================================================
-
-interface DuplicateDetection {
-  isDuplicate: boolean;
-  similarityScore: number;
-  matchedComplaintId: string | null;
-  message: string;
-}
-
-// ======================================================
-// INCIDENT TYPE
-// ======================================================
-
-interface Incident {
-  id: string;
-  incidentId: string;
-  complaintCount: number;
-  status: string;
-}
-
-// ======================================================
-// COMPLETE AI RESULT
-// ======================================================
-
-interface AIResult {
-  aiClassification: AIClassification;
-  location: LocationIntelligence | null;
-  duplicateDetection: DuplicateDetection;
-  incident: Incident | null;
-}
-
-// ======================================================
-// COMPONENT
-// ======================================================
 
 function ComplaintForm() {
   // ====================================================
@@ -105,17 +34,11 @@ function ComplaintForm() {
   const [error, setError] = useState("");
 
   // ====================================================
-  // AI RESULT STATE
-  // ====================================================
-
-  // const [aiResult, setAiResult] = useState<AIResult | null>(null);
-
-  // ====================================================
   // FORM RESET KEY
   // ====================================================
 
   /*
-   * Changing this key forces all child components
+   * Changing this key forces child components
    * like ImageUpload / GeoLocation / AddressInput
    * to mount fresh after successful submission.
    */
@@ -142,10 +65,6 @@ function ComplaintForm() {
 
     setLatitude(null);
     setLongitude(null);
-
-    // VERY IMPORTANT:
-    // Clear all AI intelligence / mapping result
-    setAiResult(null);
 
     // Force child components to reset
     setFormKey((prev) => prev + 1);
@@ -192,9 +111,6 @@ function ComplaintForm() {
 
     setSuccess("");
     setError("");
-
-    // Clear any previous AI result before a new submission
-    setAiResult(null);
 
     // ==================================================
     // VALIDATION
@@ -299,202 +215,6 @@ function ComplaintForm() {
       setSuccess(
         "Complaint submitted successfully! 🎉"
       );
-
-      // =================================================
-      // STORE AI RESULT TEMPORARILY
-      // =================================================
-
-      /*
-       * We intentionally process the response here,
-       * but immediately clear the result after the
-       * complaint has been saved.
-       *
-       * The full result will be available in
-       * My Complaints / Complaint Details.
-       */
-
-      let submittedAIResult: AIResult | null = null;
-
-      if (data.aiClassification) {
-        submittedAIResult = {
-          aiClassification: {
-            isCivic:
-              data.aiClassification.isCivic ??
-              null,
-
-            area:
-              data.aiClassification.area ??
-              "",
-
-            subcategory:
-              data.aiClassification.subcategory ??
-              "",
-
-            subcategorySource:
-              data.aiClassification.subcategorySource ??
-              "ml_model",
-
-            severity:
-              data.aiClassification.severity ??
-              "",
-
-            department:
-              data.aiClassification.department ??
-              "",
-
-            priorityScore:
-              data.aiClassification.priorityScore ??
-              data.priorityScore ??
-              0,
-
-            priority:
-              data.aiClassification.priority ??
-              data.priority ??
-              "",
-
-            recommendedAction:
-              data.aiClassification.recommendedAction ??
-              data.recommendedAction ??
-              "",
-          },
-
-          // =================================================
-          // LOCATION
-          // =================================================
-
-          location: data.location
-            ? {
-                latitude:
-                  data.location.latitude ??
-                  null,
-
-                longitude:
-                  data.location.longitude ??
-                  null,
-
-                address:
-                  data.location.address ??
-                  "",
-
-                ward:
-                  data.location.ward ??
-                  "",
-
-                wardCode:
-                  data.location.wardCode ??
-                  "",
-
-                zone:
-                  data.location.zone ??
-                  "",
-
-                municipality:
-                  data.location.municipality ??
-                  "",
-
-                ulbCode:
-                  data.location.ulbCode ??
-                  "",
-
-                district:
-                  data.location.district ??
-                  "",
-
-                state:
-                  data.location.state ??
-                  "",
-
-                jurisdiction:
-                  data.location.jurisdiction ??
-                  "",
-
-                source:
-                  data.location.source ??
-                  "",
-              }
-            : null,
-
-          // =================================================
-          // DUPLICATE DETECTION
-          // =================================================
-
-          duplicateDetection:
-            data.duplicateDetection
-              ? {
-                  isDuplicate:
-                    data.duplicateDetection
-                      .isDuplicate ??
-                    false,
-
-                  similarityScore:
-                    data.duplicateDetection
-                      .similarityScore ??
-                    0,
-
-                  matchedComplaintId:
-                    data.duplicateDetection
-                      .matchedComplaintId ??
-                    null,
-
-                  message:
-                    data.duplicateDetection
-                      .message ??
-                    "",
-                }
-              : {
-                  isDuplicate: false,
-
-                  similarityScore: 0,
-
-                  matchedComplaintId: null,
-
-                  message:
-                    "No duplicate information available.",
-                },
-
-          // =================================================
-          // INCIDENT
-          // =================================================
-
-          incident: data.incident
-            ? {
-                id:
-                  data.incident.id ??
-                  "",
-
-                incidentId:
-                  data.incident.incidentId ??
-                  "",
-
-                complaintCount:
-                  data.incident.complaintCount ??
-                  0,
-
-                status:
-                  data.incident.status ??
-                  "",
-              }
-            : null,
-        };
-      }
-
-      console.log(
-        "🤖 AI result processed:",
-        submittedAIResult
-      );
-
-      // =================================================
-      // IMPORTANT
-      // =================================================
-      //
-      // We DO NOT keep AI result on the submission page.
-      //
-      // Complaint is already saved in MongoDB.
-      // User can see complete AI intelligence from
-      // My Complaints -> Complaint Details.
-      // =================================================
-
-      setAiResult(null);
 
       // =================================================
       // COMPLETE FORM RESET
@@ -740,34 +460,33 @@ function ComplaintForm() {
             {latitude !== null &&
               longitude !== null && (
 
-              <>
+                <>
+                  <div className="coordinates">
 
-                <div className="coordinates">
+                    <p>
+                      <strong>
+                        Latitude:
+                      </strong>{" "}
+                      {latitude}
+                    </p>
 
-                  <p>
-                    <strong>
-                      Latitude:
-                    </strong>{" "}
-                    {latitude}
-                  </p>
+                    <p>
+                      <strong>
+                        Longitude:
+                      </strong>{" "}
+                      {longitude}
+                    </p>
 
-                  <p>
-                    <strong>
-                      Longitude:
-                    </strong>{" "}
-                    {longitude}
-                  </p>
+                  </div>
 
-                </div>
+                  <LiveLocation
+                    latitude={latitude}
+                    longitude={longitude}
+                  />
 
-                <LiveLocation
-                  latitude={latitude}
-                  longitude={longitude}
-                />
+                </>
 
-              </>
-
-            )}
+              )}
 
             {/* ============================================
                 SUBMIT BUTTON
