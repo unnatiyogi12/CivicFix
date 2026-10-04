@@ -108,7 +108,7 @@ function ComplaintForm() {
   // AI RESULT STATE
   // ====================================================
 
-  const [aiResult, setAiResult] = useState<AIResult | null>(null);
+  // const [aiResult, setAiResult] = useState<AIResult | null>(null);
 
   // ====================================================
   // FORM RESET KEY
