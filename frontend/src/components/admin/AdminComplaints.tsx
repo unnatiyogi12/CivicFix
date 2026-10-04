@@ -201,7 +201,7 @@ function AdminComplaints({
       }
 
       const response = await fetch(
-        "https://civicfix-yrdw.onrender.com",
+        "https://civicfix-backend-ce2z.onrender.com",
         {
           method: "GET",
           headers: {

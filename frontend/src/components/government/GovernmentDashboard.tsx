@@ -101,7 +101,7 @@ function GovernmentDashboard() {
        */
 
       const response = await fetch(
-        "https://civicfix-yrdw.onrender.com/api/complaints/government/all",
+        "https://civicfix-backend-ce2z.onrender.com/api/complaints/government/all",
         {
           method: "GET",
           headers: {

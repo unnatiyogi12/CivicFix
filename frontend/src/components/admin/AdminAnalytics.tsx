@@ -8,7 +8,7 @@ const Bars=({title,items}:{title:string;items:Item[]})=><div className="an-panel
 
 export default function AdminAnalytics(){
  const[data,setData]=useState<Data|null>(null);const[loading,setLoading]=useState(true);const[error,setError]=useState("");
- const load=async()=>{try{setLoading(true);const token=localStorage.getItem("token");const r=await fetch("https://civicfix-yrdw.onrender.com",{headers:{Authorization:`Bearer ${token}`}});const d=await r.json();if(!r.ok)throw new Error(d.message||"Analytics failed");setData(d);}catch(e){setError(e instanceof Error?e.message:"Analytics failed");}finally{setLoading(false);}};
+ const load=async()=>{try{setLoading(true);const token=localStorage.getItem("token");const r=await fetch("https://civicfix-backend-ce2z.onrender.com",{headers:{Authorization:`Bearer ${token}`}});const d=await r.json();if(!r.ok)throw new Error(d.message||"Analytics failed");setData(d);}catch(e){setError(e instanceof Error?e.message:"Analytics failed");}finally{setLoading(false);}};
  useEffect(()=>{load()},[]);
  if(loading)return <div className="an-page"><h2>Loading Civic Intelligence...</h2></div>;
  if(error||!data)return <div className="an-page"><div className="an-error">⚠ {error||"Analytics unavailable"}<button onClick={load}>Retry</button></div></div>;

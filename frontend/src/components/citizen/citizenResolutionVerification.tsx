@@ -18,7 +18,7 @@ export default function CitizenResolutionVerification({complaint,onUpdated}:{com
     if(!window.confirm(decision==="confirm"?"Confirm this complaint is resolved?":"Reopen because the issue is still not resolved?")) return;
     try{
       setLoading(true);setError("");setMessage("");
-      const r=await fetch(`https://civicfix-yrdw.onrender.com/api/complaints/my/${complaint._id}/verification`,{method:"PATCH",headers:{"Content-Type":"application/json",Authorization:`Bearer ${token}`},body:JSON.stringify({decision})});
+      const r=await fetch(`https://civicfix-backend-ce2z.onrender.com/api/complaints/my/${complaint._id}/verification`,{method:"PATCH",headers:{"Content-Type":"application/json",Authorization:`Bearer ${token}`},body:JSON.stringify({decision})});
       const d=await r.json(); if(!r.ok) throw new Error(d.message||"Update failed");
       setMessage(d.message||"Updated"); onUpdated?.(d.complaint);
     }catch(e){setError(e instanceof Error?e.message:"Something went wrong.");}finally{setLoading(false);}

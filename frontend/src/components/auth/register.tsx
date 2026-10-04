@@ -50,7 +50,7 @@ function Register({
 
 
       const response = await fetch(
-        "https://civicfix-yrdw.onrender.com/api/auth/register",
+        "https://civicfix-backend-ce2z.onrender.com/api/auth/register",
         {
           method: "POST",
 
