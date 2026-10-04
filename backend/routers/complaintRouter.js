@@ -981,13 +981,13 @@ router.post(
 
                     priority:
                         aiClassification.priority ||
-                        "Not calculated",
+                        " ",
 
 
 
                     recommendedAction:
                         aiClassification.recommendedAction ||
-                        "No recommendation available",
+                        " ",
 
 
 
