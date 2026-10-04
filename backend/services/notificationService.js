@@ -1,185 +1,298 @@
 import Notification from "../models/notification.js";
 import User from "../models/User.js";
 
+
 // =========================================================
-// CREATE ONE NOTIFICATION
+// CREATE NOTIFICATION
 // =========================================================
 
 export const createNotification = async ({
-  userId,
-  complaintId = null,
-  title,
-  message,
-  type = "system",
-}) => {
-  if (!userId || !title || !message) {
-    return null;
-  }
-
-  try {
-    return await Notification.create({
-      userId,
-      complaintId,
-      title,
-      message,
-      type,
-    });
-  } catch (error) {
-    // Notification failure must never break the complaint workflow.
-    console.error("⚠️ Notification creation failed:", error.message);
-    return null;
-  }
-};
-
-// =========================================================
-// NOTIFY CITIZEN
-// =========================================================
-
-export const notifyCitizen = async ({
-  complaint,
-  title,
-  message,
-  type = "status_update",
-}) => {
-  if (!complaint?.userId) {
-    return null;
-  }
-
-  const userId =
-    typeof complaint.userId === "object"
-      ? complaint.userId._id
-      : complaint.userId;
-
-  return createNotification({
     userId,
-    complaintId: complaint._id,
+    complaintId = null,
     title,
     message,
-    type,
-  });
+    type = "general"
+}) => {
+
+    try {
+
+        if (!userId) {
+
+            console.error(
+                "❌ Notification skipped: userId missing"
+            );
+
+            return null;
+        }
+
+
+        const notification =
+            await Notification.create({
+
+                userId,
+
+                complaintId,
+
+                title,
+
+                message,
+
+                type,
+
+                // VERY IMPORTANT
+                // Every newly created notification
+                // starts as unread.
+                isRead: false
+
+            });
+
+
+        console.log(
+            "🔔 Notification created:",
+            title,
+            "| user:",
+            userId.toString()
+        );
+
+
+        return notification;
+
+
+    } catch (error) {
+
+        console.error(
+            "❌ Error creating notification:",
+            error
+        );
+
+        return null;
+    }
 };
+
+
 
 // =========================================================
 // NOTIFY ALL ADMINS
 // =========================================================
 
 export const notifyAdmins = async ({
-  complaintId = null,
-  title,
-  message,
-  type = "system",
+    complaintId,
+    title,
+    message,
+    type = "general"
 }) => {
-  try {
-    const admins = await User.find({ role: "admin" }).select("_id");
 
-    if (!admins.length) {
-      return [];
+    try {
+
+        const admins =
+            await User.find({
+                role: "admin"
+            }).select("_id");
+
+
+        console.log(
+            `🔔 Sending notification to ${admins.length} admin(s)`
+        );
+
+
+        await Promise.all(
+
+            admins.map((admin) =>
+
+                createNotification({
+
+                    userId:
+                        admin._id,
+
+                    complaintId,
+
+                    title,
+
+                    message,
+
+                    type
+
+                })
+
+            )
+
+        );
+
+
+        console.log(
+            "✅ Admin notifications completed"
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "❌ Error notifying admins:",
+            error
+        );
+
     }
-
-    return await Promise.all(
-      admins.map((admin) =>
-        createNotification({
-          userId: admin._id,
-          complaintId,
-          title,
-          message,
-          type,
-        })
-      )
-    );
-  } catch (error) {
-    console.error("⚠️ Admin notification failed:", error.message);
-    return [];
-  }
 };
 
+
+
 // =========================================================
-// NOTIFY ALL GOVERNMENT USERS
+// NOTIFY GOVERNMENT USERS
 // =========================================================
 
 export const notifyGovernmentUsers = async ({
-  complaintId = null,
-  title,
-  message,
-  type = "government_update",
+    complaintId,
+    title,
+    message,
+    type = "government_update",
+    department
 }) => {
-  try {
-    const governmentUsers = await User.find({
-      role: "government",
-    }).select("_id");
 
-    if (!governmentUsers.length) {
-      return [];
+    try {
+
+        const filter = {
+            role: "government"
+        };
+
+
+        // Department filtering only if
+        // department exists in your User model.
+        if (department) {
+            filter.department = department;
+        }
+
+
+        const governmentUsers =
+            await User.find(filter)
+                .select("_id");
+
+
+        console.log(
+            `🏛️ Sending notification to ${governmentUsers.length} government user(s)`
+        );
+
+
+        await Promise.all(
+
+            governmentUsers.map((user) =>
+
+                createNotification({
+
+                    userId:
+                        user._id,
+
+                    complaintId,
+
+                    title,
+
+                    message,
+
+                    type
+
+                })
+
+            )
+
+        );
+
+
+        console.log(
+            "✅ Government notifications completed"
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "❌ Error notifying government users:",
+            error
+        );
+
     }
-
-    return await Promise.all(
-      governmentUsers.map((governmentUser) =>
-        createNotification({
-          userId: governmentUser._id,
-          complaintId,
-          title,
-          message,
-          type,
-        })
-      )
-    );
-  } catch (error) {
-    console.error("⚠️ Government notification failed:", error.message);
-    return [];
-  }
 };
 
+
+
 // =========================================================
-// STATUS MESSAGE HELPERS
+// NOTIFY CITIZEN
 // =========================================================
 
-export const notifyCitizenForStatus = async (complaint, status) => {
-  const messages = {
-    "Under Review": {
-      title: "Complaint Under Review",
-      message: `Your complaint "${complaint.title}" is now under review.`,
-      type: "status_update",
-    },
-
-    Verified: {
-      title: "Complaint Verified",
-      message: `Your complaint "${complaint.title}" has been verified.`,
-      type: "status_update",
-    },
-
-    Rejected: {
-      title: "Complaint Rejected",
-      message: `Your complaint "${complaint.title}" has been rejected.`,
-      type: "status_update",
-    },
-
-    Forwarded: {
-      title: "Complaint Forwarded",
-      message: `Your complaint "${complaint.title}" has been forwarded for government handling.`,
-      type: "government_update",
-    },
-
-    Resolved: {
-      title: "Complaint Resolved",
-      message: `Your complaint "${complaint.title}" has been marked as resolved.`,
-      type: "resolution",
-    },
-
-    Reopened: {
-      title: "Complaint Reopened",
-      message: `Your complaint "${complaint.title}" has been reopened for further action.`,
-      type: "reopened",
-    },
-  };
-
-  const notification = messages[status];
-
-  if (!notification) {
-    return null;
-  }
-
-  return notifyCitizen({
+export const notifyCitizen = async ({
     complaint,
-    ...notification,
-  });
+    title,
+    message,
+    type = "general"
+}) => {
+
+    try {
+
+        // Your Complaint model uses userId
+        // for the citizen owner.
+        const citizenId =
+            complaint?.userId;
+
+
+        if (!citizenId) {
+
+            console.error(
+                "❌ Citizen notification skipped: complaint.userId missing"
+            );
+
+            return null;
+        }
+
+
+        return await createNotification({
+
+            userId:
+                citizenId,
+
+            complaintId:
+                complaint._id,
+
+            title,
+
+            message,
+
+            type
+
+        });
+
+
+    } catch (error) {
+
+        console.error(
+            "❌ Error notifying citizen:",
+            error
+        );
+
+        return null;
+    }
+};
+
+
+
+// =========================================================
+// CITIZEN STATUS NOTIFICATION
+// =========================================================
+
+export const notifyCitizenForStatus = async (
+    complaint,
+    title,
+    message,
+    type = "status_update"
+) => {
+
+    return await notifyCitizen({
+
+        complaint,
+
+        title,
+
+        message,
+
+        type
+
+    });
+
 };

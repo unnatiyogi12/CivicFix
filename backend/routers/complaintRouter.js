@@ -4,6 +4,12 @@ import User from "../models/User.js";
 import Incident from "../models/incident.js";
 import GovernmentSource from "../models/GovernmentSource.js";
 import GovernmentService from "../models/GovernmentService.js";
+import {
+    notifyCitizenForStatus,
+    notifyCitizen,
+    notifyAdmins,
+    notifyGovernmentUsers
+} from "../services/notificationService.js"
 
 import {
     getLocationIntelligence
@@ -808,6 +814,12 @@ router.post(
 
 
                 await complaint.save();
+                await notifyAdmins({
+                    complaintId: complaint._id,
+                    title: "New Complaint Reported",
+                    message: `A new complaint "${complaint.title}" has been reported by a citizen.`,
+                    type: "complaint_submitted"
+                });
 
 
                 console.log(
