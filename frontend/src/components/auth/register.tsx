@@ -1,5 +1,5 @@
 import { useState } from "react";
-import "./Register.css";
+import "./register.css";
 
 interface RegisterProps {
   onRegisterSuccess: () => void;

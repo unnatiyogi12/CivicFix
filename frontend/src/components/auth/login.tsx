@@ -1,5 +1,5 @@
 import { useState } from "react";
-import "./Login.css";
+import "./login.css";
 
 interface LoginProps {
   onLoginSuccess: (token: string, role: string) => void;
