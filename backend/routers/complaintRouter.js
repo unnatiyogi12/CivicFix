@@ -125,7 +125,7 @@ router.post(
 
 
                 const mlResponse = await fetch(
-                    "http://localhost:8000/predict",
+                    "https://civicfix-ml.onrender.com/predict",
                     {
                         method: "POST",
 
@@ -259,7 +259,7 @@ router.post(
 
                     const duplicateResponse =
                         await fetch(
-                            "http://localhost:8000/duplicate-check",
+                            "https://civicfix-ml.onrender.com/duplicate-check",
                             {
                                 method: "POST",
 
